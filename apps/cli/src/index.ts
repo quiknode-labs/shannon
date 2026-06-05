@@ -14,6 +14,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from './commands/build.js';
 import { logs } from './commands/logs.js';
+import { rescan } from './commands/rescan.js';
 import { setup } from './commands/setup.js';
 import { start } from './commands/start.js';
 import { status } from './commands/status.js';
@@ -68,6 +69,7 @@ Usage:${
   ${prefix} setup                                       Configure credentials`
   }
   ${prefix} start --url <url> --repo <path> [options]   Start a pentest scan
+  ${prefix} rescan -w <workspace> -r <path> -f <file>   Re-verify specific findings after fixes
   ${prefix} stop [--clean]                               Stop all containers
   ${prefix} workspaces                                   List all workspaces
   ${prefix} logs <workspace>                             Tail workflow log
@@ -195,6 +197,66 @@ function parseStartArgs(argv: string[]): ParsedStartArgs {
   };
 }
 
+interface ParsedRescanArgs {
+  sourceWorkspace: string;
+  repo: string;
+  findingsFile: string;
+  output?: string;
+  debug: boolean;
+}
+
+function parseRescanArgs(argv: string[]): ParsedRescanArgs {
+  let sourceWorkspace = '';
+  let repo = '';
+  let findingsFile = '';
+  let output: string | undefined;
+  let debug = false;
+
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    const next = argv[i + 1];
+
+    switch (arg) {
+      case '-w':
+      case '--workspace':
+        if (next && !next.startsWith('-')) { sourceWorkspace = next; i++; }
+        break;
+      case '-r':
+      case '--repo':
+        if (next && !next.startsWith('-')) { repo = next; i++; }
+        break;
+      case '-f':
+      case '--findings':
+        if (next && !next.startsWith('-')) { findingsFile = next; i++; }
+        break;
+      case '-o':
+      case '--output':
+        if (next && !next.startsWith('-')) { output = next; i++; }
+        break;
+      case '--debug':
+        debug = true;
+        break;
+      default:
+        console.error(`Unknown option: ${arg}`);
+        process.exit(1);
+    }
+  }
+
+  if (!sourceWorkspace || !repo || !findingsFile) {
+    console.error('ERROR: --workspace, --repo, and --findings are required');
+    console.error(`Usage: ${getMode() === 'local' ? './shannon' : 'npx @keygraph/shannon'} rescan -w <workspace> -r <path> -f <file>`);
+    process.exit(1);
+  }
+
+  return {
+    sourceWorkspace,
+    repo,
+    findingsFile,
+    debug,
+    ...(output && { output }),
+  };
+}
+
 // === Main Dispatch ===
 
 blockSudo();
@@ -206,6 +268,11 @@ switch (command) {
   case 'start': {
     const parsed = parseStartArgs(args.slice(1));
     await start({ ...parsed, version: getVersion() });
+    break;
+  }
+  case 'rescan': {
+    const parsed = parseRescanArgs(args.slice(1));
+    await rescan({ ...parsed, version: getVersion() });
     break;
   }
   case 'stop':

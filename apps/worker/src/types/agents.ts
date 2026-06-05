@@ -28,11 +28,28 @@ export const ALL_AGENTS = [
   'report',
 ] as const;
 
+/** Agents used in the targeted rescan pipeline (re-verification after developer fixes). */
+export const RESCAN_AGENTS = [
+  'injection-vuln-rescan',
+  'xss-vuln-rescan',
+  'auth-vuln-rescan',
+  'ssrf-vuln-rescan',
+  'authz-vuln-rescan',
+  'injection-exploit-rescan',
+  'xss-exploit-rescan',
+  'auth-exploit-rescan',
+  'ssrf-exploit-rescan',
+  'authz-exploit-rescan',
+  'report-rescan',
+] as const;
+
+export type RescanAgentName = (typeof RESCAN_AGENTS)[number];
+
 /**
- * Agent name type derived from ALL_AGENTS.
+ * Agent name type derived from ALL_AGENTS and RESCAN_AGENTS.
  * This ensures type safety and prevents drift between type and array.
  */
-export type AgentName = (typeof ALL_AGENTS)[number];
+export type AgentName = (typeof ALL_AGENTS)[number] | RescanAgentName;
 
 export type PlaywrightSession = 'agent1' | 'agent2' | 'agent3' | 'agent4' | 'agent5';
 

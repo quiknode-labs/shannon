@@ -6,6 +6,13 @@ import type { DistributedConfig, PipelineConfig, ProviderConfig, VulnClass } fro
 import type { ErrorCode } from '../types/errors.js';
 import type { AgentMetrics } from '../types/metrics.js';
 
+/** A single finding submitted for re-verification after a developer fix. */
+export interface RescanFinding {
+  findingId: string;
+  vulnType: VulnClass;
+  developerContext: string;
+}
+
 export interface PipelineInput {
   webUrl: string;
   repoPath: string;
@@ -31,6 +38,11 @@ export interface PipelineInput {
   providerConfig?: ProviderConfig; // LLM provider configuration (Bedrock, Vertex, etc.)
   vulnClasses?: VulnClass[]; // omitted = all five
   exploit?: boolean; // false skips the exploitation phase
+
+  // Rescan mode — re-verify specific findings after developer fixes
+  rescanMode?: boolean;
+  rescanFindings?: RescanFinding[];
+  sourceWorkspace?: string; // workspace name to copy queue files from
 }
 
 export interface ResumeState {

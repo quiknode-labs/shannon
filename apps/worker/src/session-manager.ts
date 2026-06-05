@@ -104,6 +104,91 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
     promptTemplate: 'report-executive',
     deliverableFilename: 'comprehensive_security_assessment_report.md',
   },
+
+  // === Rescan agents (targeted re-verification after developer fixes) ===
+  'injection-vuln-rescan': {
+    name: 'injection-vuln-rescan',
+    displayName: 'Injection vuln rescan agent',
+    prerequisites: [],
+    promptTemplate: 'vuln-injection-rescan',
+    deliverableFilename: 'injection_analysis_deliverable.md',
+  },
+  'xss-vuln-rescan': {
+    name: 'xss-vuln-rescan',
+    displayName: 'XSS vuln rescan agent',
+    prerequisites: [],
+    promptTemplate: 'vuln-xss-rescan',
+    deliverableFilename: 'xss_analysis_deliverable.md',
+  },
+  'auth-vuln-rescan': {
+    name: 'auth-vuln-rescan',
+    displayName: 'Auth vuln rescan agent',
+    prerequisites: [],
+    promptTemplate: 'vuln-auth-rescan',
+    deliverableFilename: 'auth_analysis_deliverable.md',
+  },
+  'ssrf-vuln-rescan': {
+    name: 'ssrf-vuln-rescan',
+    displayName: 'SSRF vuln rescan agent',
+    prerequisites: [],
+    promptTemplate: 'vuln-ssrf-rescan',
+    deliverableFilename: 'ssrf_analysis_deliverable.md',
+  },
+  'authz-vuln-rescan': {
+    name: 'authz-vuln-rescan',
+    displayName: 'Authz vuln rescan agent',
+    prerequisites: [],
+    promptTemplate: 'vuln-authz-rescan',
+    deliverableFilename: 'authz_analysis_deliverable.md',
+  },
+  'injection-exploit-rescan': {
+    name: 'injection-exploit-rescan',
+    displayName: 'Injection exploit rescan agent',
+    prerequisites: ['injection-vuln-rescan'],
+    promptTemplate: 'exploit-injection-rescan',
+    deliverableFilename: 'injection_exploitation_evidence.md',
+  },
+  'xss-exploit-rescan': {
+    name: 'xss-exploit-rescan',
+    displayName: 'XSS exploit rescan agent',
+    prerequisites: ['xss-vuln-rescan'],
+    promptTemplate: 'exploit-xss-rescan',
+    deliverableFilename: 'xss_exploitation_evidence.md',
+  },
+  'auth-exploit-rescan': {
+    name: 'auth-exploit-rescan',
+    displayName: 'Auth exploit rescan agent',
+    prerequisites: ['auth-vuln-rescan'],
+    promptTemplate: 'exploit-auth-rescan',
+    deliverableFilename: 'auth_exploitation_evidence.md',
+  },
+  'ssrf-exploit-rescan': {
+    name: 'ssrf-exploit-rescan',
+    displayName: 'SSRF exploit rescan agent',
+    prerequisites: ['ssrf-vuln-rescan'],
+    promptTemplate: 'exploit-ssrf-rescan',
+    deliverableFilename: 'ssrf_exploitation_evidence.md',
+  },
+  'authz-exploit-rescan': {
+    name: 'authz-exploit-rescan',
+    displayName: 'Authz exploit rescan agent',
+    prerequisites: ['authz-vuln-rescan'],
+    promptTemplate: 'exploit-authz-rescan',
+    deliverableFilename: 'authz_exploitation_evidence.md',
+  },
+  'report-rescan': {
+    name: 'report-rescan',
+    displayName: 'Rescan report agent',
+    prerequisites: [
+      'injection-exploit-rescan',
+      'xss-exploit-rescan',
+      'auth-exploit-rescan',
+      'ssrf-exploit-rescan',
+      'authz-exploit-rescan',
+    ],
+    promptTemplate: 'report-rescan',
+    deliverableFilename: 'rescan_verification_report.md',
+  },
 });
 
 // Phase names for metrics aggregation
@@ -124,6 +209,18 @@ export const AGENT_PHASE_MAP: Readonly<Record<AgentName, PhaseName>> = Object.fr
   'authz-exploit': 'exploitation',
   'ssrf-exploit': 'exploitation',
   report: 'reporting',
+  // Rescan agents
+  'injection-vuln-rescan': 'vulnerability-analysis',
+  'xss-vuln-rescan': 'vulnerability-analysis',
+  'auth-vuln-rescan': 'vulnerability-analysis',
+  'ssrf-vuln-rescan': 'vulnerability-analysis',
+  'authz-vuln-rescan': 'vulnerability-analysis',
+  'injection-exploit-rescan': 'exploitation',
+  'xss-exploit-rescan': 'exploitation',
+  'auth-exploit-rescan': 'exploitation',
+  'ssrf-exploit-rescan': 'exploitation',
+  'authz-exploit-rescan': 'exploitation',
+  'report-rescan': 'reporting',
 });
 
 // Factory function for vulnerability queue validators
@@ -176,6 +273,23 @@ export const PLAYWRIGHT_SESSION_MAPPING: Record<string, PlaywrightSession> = Obj
 
   // Phase 5: Reporting
   'report-executive': 'agent3',
+
+  // Rescan: vuln re-analysis (parallel, same session slots as normal vuln)
+  'vuln-injection-rescan': 'agent1',
+  'vuln-xss-rescan': 'agent2',
+  'vuln-auth-rescan': 'agent3',
+  'vuln-ssrf-rescan': 'agent4',
+  'vuln-authz-rescan': 'agent5',
+
+  // Rescan: exploit verification (parallel, same session slots as normal exploit)
+  'exploit-injection-rescan': 'agent1',
+  'exploit-xss-rescan': 'agent2',
+  'exploit-auth-rescan': 'agent3',
+  'exploit-ssrf-rescan': 'agent4',
+  'exploit-authz-rescan': 'agent5',
+
+  // Rescan: verification report
+  'report-rescan': 'agent3',
 });
 
 // Direct agent-to-validator mapping - much simpler than pattern matching
@@ -218,4 +332,29 @@ export const AGENT_VALIDATORS: Record<AgentName, AgentValidator> = Object.freeze
 
     return reportExists;
   },
+
+  // Rescan: vuln re-analysis agents (same deliverables as originals — same files, new workspace)
+  'injection-vuln-rescan': createVulnValidator('injection'),
+  'xss-vuln-rescan': createVulnValidator('xss'),
+  'auth-vuln-rescan': createVulnValidator('auth'),
+  'ssrf-vuln-rescan': createVulnValidator('ssrf'),
+  'authz-vuln-rescan': createVulnValidator('authz'),
+
+  // Rescan: exploit verification agents
+  'injection-exploit-rescan': createExploitValidator('injection'),
+  'xss-exploit-rescan': createExploitValidator('xss'),
+  'auth-exploit-rescan': createExploitValidator('auth'),
+  'ssrf-exploit-rescan': createExploitValidator('ssrf'),
+  'authz-exploit-rescan': createExploitValidator('authz'),
+
+  // Rescan: verification report agent
+  'report-rescan': async (sourceDir: string, logger: ActivityLogger): Promise<boolean> => {
+    const reportFile = path.join(sourceDir, 'rescan_verification_report.md');
+    const reportExists = await fs.pathExists(reportFile);
+    if (!reportExists) {
+      logger.error('Missing required deliverable: rescan_verification_report.md');
+    }
+    return reportExists;
+  },
 });
+

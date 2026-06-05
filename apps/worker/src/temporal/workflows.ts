@@ -32,7 +32,7 @@ import {
   workflowInfo,
 } from '@temporalio/workflow';
 import type { AgentName, VulnType } from '../types/agents.js';
-import { ALL_AGENTS } from '../types/agents.js';
+import { ALL_AGENTS, RESCAN_AGENTS } from '../types/agents.js';
 import { ALL_VULN_CLASSES, type VulnClass } from '../types/config.js';
 import type * as activities from './activities.js';
 import type { ActivityInput } from './activities.js';
@@ -43,6 +43,7 @@ import {
   type PipelineProgress,
   type PipelineState,
   type PipelineSummary,
+  type RescanFinding,
   type ResumeState,
   type VulnExploitPipelineResult,
 } from './shared.js';
@@ -60,6 +61,50 @@ function computeExpectedAgents(vulnClasses: readonly VulnClass[], exploit: boole
   }
   expected.push('report');
   return expected;
+}
+
+/** Expected agents for a rescan run. */
+function computeRescanExpectedAgents(rescanFindings: RescanFinding[]): string[] {
+  const affectedClasses = [...new Set(rescanFindings.map((f) => f.vulnType))];
+  const expected: string[] = [];
+  for (const cls of affectedClasses) {
+    expected.push(`${cls}-vuln-rescan`);
+    expected.push(`${cls}-exploit-rescan`);
+  }
+  expected.push('report-rescan');
+  return expected;
+}
+
+/** Build a formatted rescan context string from findings — injected as {{RESCAN_CONTEXT}} in prompts. */
+function buildRescanContextString(findings: RescanFinding[]): string {
+  const byType: Record<string, RescanFinding[]> = {};
+  for (const f of findings) {
+    const arr = byType[f.vulnType];
+    if (arr) {
+      arr.push(f);
+    } else {
+      byType[f.vulnType] = [f];
+    }
+  }
+
+  const lines: string[] = [
+    'RESCAN VERIFICATION MODE',
+    '========================',
+    'The following findings were confirmed in a prior scan.',
+    'The developer has submitted fixes. Verify whether each fix is effective.',
+    '',
+  ];
+
+  for (const [vulnType, typeFindings] of Object.entries(byType)) {
+    lines.push(`[${vulnType.toUpperCase()} FINDINGS]`);
+    for (const f of typeFindings) {
+      lines.push(`- ${f.findingId}`);
+      lines.push(`  Developer fix: ${f.developerContext}`);
+    }
+    lines.push('');
+  }
+
+  return lines.join('\n');
 }
 
 // Retry configuration for production (long intervals for billing recovery)
@@ -165,6 +210,224 @@ function computeSummary(state: PipelineState): PipelineSummary {
   };
 }
 
+// Void reference to suppress unused-import warning in the Temporal sandbox.
+void RESCAN_AGENTS;
+
+// Run thunks with a concurrency limit, returning PromiseSettledResult for each.
+// When limit >= thunks.length (default), all launch concurrently — identical to Promise.allSettled.
+// NOTE: Results are in completion order, not input order. Callers must key on value fields, not index.
+async function runWithConcurrencyLimit(
+  thunks: Array<() => Promise<VulnExploitPipelineResult>>,
+  limit: number,
+): Promise<PromiseSettledResult<VulnExploitPipelineResult>[]> {
+  const results: PromiseSettledResult<VulnExploitPipelineResult>[] = [];
+  const inFlight = new Set<Promise<void>>();
+
+  for (const thunk of thunks) {
+    const slot = thunk()
+      .then(
+        (value) => {
+          results.push({ status: 'fulfilled', value });
+        },
+        (reason: unknown) => {
+          results.push({ status: 'rejected', reason });
+        },
+      )
+      .finally(() => {
+        inFlight.delete(slot);
+      });
+
+    inFlight.add(slot);
+
+    if (inFlight.size >= limit) {
+      await Promise.race(inFlight);
+    }
+  }
+
+  await Promise.allSettled(inFlight);
+  return results;
+}
+
+/**
+ * Targeted re-verification pipeline.
+ *
+ * Skips pre-recon and recon (context copied from source workspace by setupRescanWorkspace).
+ * For each affected vuln class:
+ *   1. Re-runs the vuln agent with developer fix context to check if the issue remains
+ *   2. Checks the exploitation queue
+ *   3. Runs the exploit agent to confirm remaining findings under active exploitation
+ * Finishes with a rescan-specific verification report.
+ */
+async function runRescanPipeline(
+  input: PipelineInput,
+  activityInput: ActivityInput,
+  state: PipelineState,
+  a: typeof acts,
+): Promise<PipelineState> {
+  const rescanFindings = input.rescanFindings!;
+  const affectedClasses = [...new Set(rescanFindings.map((f) => f.vulnType))] as VulnType[];
+  const expectedAgents = computeRescanExpectedAgents(rescanFindings);
+  const rescanContext = buildRescanContextString(rescanFindings);
+
+  // Inject rescan context into the shared activityInput so all agents receive it
+  const rescanActivityInput: ActivityInput = { ...activityInput, rescanContext };
+
+  // Record scope (new workspace — no prior scope to conflict with)
+  await a.persistOrValidateRunScope(rescanActivityInput, affectedClasses, true);
+
+  try {
+    // === Setup: copy + filter source workspace queue files ===
+    state.currentPhase = 'rescan-setup';
+    await a.initDeliverableGit(rescanActivityInput);
+    await a.syncCodePathDenyRules(rescanActivityInput);
+
+    if (input.sourceWorkspace) {
+      await a.setupRescanWorkspace(rescanActivityInput, input.sourceWorkspace, rescanFindings);
+    }
+
+    log.info(`Rescan scope: classes=[${affectedClasses.join(', ')}] findings=${rescanFindings.length}`);
+
+    // === Re-verification: vuln → exploit for each affected class (parallel) ===
+    state.currentPhase = 'vulnerability-exploitation';
+    state.currentAgent = 'pipelines';
+    await a.logPhaseTransition(rescanActivityInput, 'vulnerability-exploitation', 'start');
+
+    const rescanPipelineConfigs: Array<{
+      vulnType: VulnType;
+      vulnAgent: string;
+      exploitAgent: string;
+      runVuln: () => Promise<AgentMetrics>;
+      runExploit: () => Promise<AgentMetrics>;
+    }> = [
+      {
+        vulnType: 'injection',
+        vulnAgent: 'injection-vuln-rescan',
+        exploitAgent: 'injection-exploit-rescan',
+        runVuln: () => a.runInjectionVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runInjectionExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'xss',
+        vulnAgent: 'xss-vuln-rescan',
+        exploitAgent: 'xss-exploit-rescan',
+        runVuln: () => a.runXssVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runXssExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'auth',
+        vulnAgent: 'auth-vuln-rescan',
+        exploitAgent: 'auth-exploit-rescan',
+        runVuln: () => a.runAuthVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runAuthExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'ssrf',
+        vulnAgent: 'ssrf-vuln-rescan',
+        exploitAgent: 'ssrf-exploit-rescan',
+        runVuln: () => a.runSsrfVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runSsrfExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'authz',
+        vulnAgent: 'authz-vuln-rescan',
+        exploitAgent: 'authz-exploit-rescan',
+        runVuln: () => a.runAuthzVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runAuthzExploitRescanAgent(rescanActivityInput),
+      },
+    ];
+
+    const maxConcurrent = input.pipelineConfig?.max_concurrent_pipelines ?? 5;
+    const rescanThunks: Array<() => Promise<VulnExploitPipelineResult>> = [];
+
+    for (const config of rescanPipelineConfigs) {
+      if (!affectedClasses.includes(config.vulnType)) continue;
+
+      rescanThunks.push(async () => {
+        // 1. Re-run vuln analysis with developer fix context
+        const vulnMetrics = await config.runVuln();
+        state.agentMetrics[config.vulnAgent] = vulnMetrics;
+        state.completedAgents.push(config.vulnAgent);
+
+        // 2. Merge any external findings
+        await a.mergeFindingsIntoQueue(rescanActivityInput, config.vulnType);
+
+        // 3. Check if exploitation is warranted
+        const decision = await a.checkExploitationQueue(rescanActivityInput, config.vulnType);
+
+        // 4. Exploit to confirm remaining findings
+        let exploitMetrics: AgentMetrics | null = null;
+        if (decision.shouldExploit) {
+          exploitMetrics = await config.runExploit();
+          state.agentMetrics[config.exploitAgent] = exploitMetrics;
+          state.completedAgents.push(config.exploitAgent);
+        } else {
+          log.info(`${config.vulnType} rescan: no remaining findings to exploit`);
+          state.completedAgents.push(config.exploitAgent);
+        }
+
+        return {
+          vulnType: config.vulnType,
+          vulnMetrics,
+          exploitMetrics,
+          exploitDecision: { shouldExploit: decision.shouldExploit, vulnerabilityCount: decision.vulnerabilityCount },
+          error: null,
+        };
+      });
+    }
+
+    const pipelineResults = await runWithConcurrencyLimit(rescanThunks, maxConcurrent);
+
+    const failures = pipelineResults.filter((r) => r.status === 'rejected');
+    if (failures.length > 0) {
+      log.warn(`${failures.length} rescan pipeline(s) failed`);
+    }
+
+    await a.logPhaseTransition(rescanActivityInput, 'vulnerability-exploitation', 'complete');
+
+    // === Rescan Report ===
+    state.currentPhase = 'reporting';
+    state.currentAgent = 'report-rescan';
+    await a.logPhaseTransition(rescanActivityInput, 'reporting', 'start');
+    await a.assembleReportActivity(rescanActivityInput, true);
+    state.agentMetrics['report-rescan'] = await a.runReportRescanAgent(rescanActivityInput);
+    state.completedAgents.push('report-rescan');
+    await a.logPhaseTransition(rescanActivityInput, 'reporting', 'complete');
+
+    await a.generateReportOutputActivity(rescanActivityInput);
+
+    // Emit rescan-findings-index.json with FIXED / STILL_VULNERABLE / INCONCLUSIVE verdicts
+    if (input.sourceWorkspace) {
+      await a.generateRescanFindingsIndexActivity(rescanActivityInput, input.sourceWorkspace, rescanFindings);
+    }
+
+    state.status = 'completed';
+    state.currentPhase = null;
+    state.currentAgent = null;
+    state.summary = computeSummary(state);
+    await a.logWorkflowComplete(rescanActivityInput, toWorkflowSummary(state, 'completed'));
+
+    log.info(`Rescan complete. Expected agents: ${expectedAgents.join(', ')}`);
+    return state;
+  } catch (error) {
+    if (isCancellation(error)) {
+      state.status = 'cancelled';
+      state.error = `Cancelled during rescan phase: ${state.currentPhase ?? 'unknown'}`;
+      state.summary = computeSummary(state);
+      await a.logWorkflowComplete(rescanActivityInput, toWorkflowSummary(state, 'cancelled'));
+      return state;
+    }
+
+    state.status = 'failed';
+    state.failedAgent = state.currentAgent;
+    state.error = formatWorkflowError(error, state.currentPhase, state.currentAgent);
+    const errorCode = classifyErrorCode(error);
+    if (errorCode) state.errorCode = errorCode;
+    state.summary = computeSummary(state);
+    await a.logWorkflowComplete(rescanActivityInput, toWorkflowSummary(state, 'failed'));
+    throw error;
+  }
+}
+
 /**
  * Core pipeline orchestration. Coordinates the pentest pipeline stages.
  *
@@ -245,6 +508,11 @@ export async function pentestPipeline(input: PipelineInput): Promise<PipelineSta
     ...(input.skipGitCheck !== undefined && { skipGitCheck: input.skipGitCheck }),
     ...(input.providerConfig !== undefined && { providerConfig: input.providerConfig }),
   };
+
+  // === Rescan Pipeline ===
+  if (input.rescanMode && input.rescanFindings && input.rescanFindings.length > 0) {
+    return runRescanPipeline(input, activityInput, state, a);
+  }
 
   const selectedVulnClasses: readonly VulnClass[] =
     input.vulnClasses && input.vulnClasses.length > 0 ? input.vulnClasses : ALL_VULN_CLASSES;
@@ -393,40 +661,6 @@ export async function pentestPipeline(input: PipelineInput): Promise<PipelineSta
     }
   }
 
-  // Run thunks with a concurrency limit, returning PromiseSettledResult for each.
-  // When limit >= thunks.length (default), all launch concurrently — identical to Promise.allSettled.
-  // NOTE: Results are in completion order, not input order. Callers must key on value fields, not index.
-  async function runWithConcurrencyLimit(
-    thunks: Array<() => Promise<VulnExploitPipelineResult>>,
-    limit: number,
-  ): Promise<PromiseSettledResult<VulnExploitPipelineResult>[]> {
-    const results: PromiseSettledResult<VulnExploitPipelineResult>[] = [];
-    const inFlight = new Set<Promise<void>>();
-
-    for (const thunk of thunks) {
-      const slot = thunk()
-        .then(
-          (value) => {
-            results.push({ status: 'fulfilled', value });
-          },
-          (reason: unknown) => {
-            results.push({ status: 'rejected', reason });
-          },
-        )
-        .finally(() => {
-          inFlight.delete(slot);
-        });
-
-      inFlight.add(slot);
-
-      if (inFlight.size >= limit) {
-        await Promise.race(inFlight);
-      }
-    }
-
-    await Promise.allSettled(inFlight);
-    return results;
-  }
 
   try {
     // === Preflight Validation ===
@@ -579,6 +813,9 @@ export async function pentestPipeline(input: PipelineInput): Promise<PipelineSta
 
     // Runs after the skip gate so consumer providers still execute on resume.
     await a.generateReportOutputActivity(activityInput);
+
+    // Emit findings-index.json for Coral and other consumers to map findingIds
+    await a.generateFindingsIndexActivity(activityInput);
 
     if (input.checkpointsEnabled) {
       await a.saveCheckpoint(activityInput, 'report-output', 'reporting', state);

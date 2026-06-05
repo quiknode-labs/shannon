@@ -1,0 +1,20 @@
+<rescan_context>
+{{RESCAN_CONTEXT}}
+</rescan_context>
+
+<rescan_instructions>
+You are operating in RESCAN VERIFICATION MODE. Your goal is NOT to discover new vulnerabilities.
+
+Your task is to re-examine the specific findings listed above and determine whether the developer's fixes are effective. For each finding:
+
+1. Locate the exact code path described in the original finding
+2. Analyze the developer's fix as described in `Developer fix:` above
+3. Determine if the vulnerability has been fully remediated, partially remediated, or is still present
+4. If still exploitable: produce fresh proof (payload, trace, or HTTP evidence)
+5. If fixed: explain specifically why the fix is effective and cannot be bypassed
+
+For each finding, your verdict must be one of:
+- **FIXED** — The vulnerability has been fully remediated. Provide evidence of why it works.
+- **STILL_VULNERABLE** — The vulnerability persists despite the fix. Provide proof.
+- **INCONCLUSIVE** — Insufficient evidence to confirm either outcome (explain why).
+</rescan_instructions>

@@ -39,7 +39,7 @@ import { deliverablesDir } from '../paths.js';
 import type { PipelineConfig, VulnClass } from '../types/config.js';
 import { fileExists, readJson } from '../utils/file-io.js';
 import * as activities from './activities.js';
-import type { PipelineInput, PipelineProgress, PipelineState } from './shared.js';
+import type { PipelineInput, PipelineProgress, PipelineState, RescanFinding } from './shared.js';
 
 dotenv.config();
 
@@ -57,6 +57,8 @@ interface CliArgs {
   outputPath?: string;
   pipelineTestingMode: boolean;
   resumeFromWorkspace?: string;
+  rescanFindingsFile?: string;
+  sourceWorkspace?: string;
 }
 
 function showUsage(): void {
@@ -84,6 +86,8 @@ function parseCliArgs(argv: string[]): CliArgs {
   let outputPath: string | undefined;
   let pipelineTestingMode = false;
   let resumeFromWorkspace: string | undefined;
+  let rescanFindingsJson: string | undefined;
+  let sourceWorkspace: string | undefined;
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -109,6 +113,18 @@ function parseCliArgs(argv: string[]): CliArgs {
       const nextArg = argv[i + 1];
       if (nextArg && !nextArg.startsWith('-')) {
         resumeFromWorkspace = nextArg;
+        i++;
+      }
+    } else if (arg === '--rescan-findings-file') {
+      const nextArg = argv[i + 1];
+      if (nextArg && !nextArg.startsWith('-')) {
+        rescanFindingsJson = nextArg; // will be read from disk below
+        i++;
+      }
+    } else if (arg === '--source-workspace') {
+      const nextArg = argv[i + 1];
+      if (nextArg && !nextArg.startsWith('-')) {
+        sourceWorkspace = nextArg;
         i++;
       }
     } else if (arg === '--pipeline-testing') {
@@ -142,6 +158,8 @@ function parseCliArgs(argv: string[]): CliArgs {
     ...(configPath && { configPath }),
     ...(outputPath && { outputPath }),
     ...(resumeFromWorkspace && { resumeFromWorkspace }),
+    ...(rescanFindingsJson && { rescanFindingsFile: rescanFindingsJson }),
+    ...(sourceWorkspace && { sourceWorkspace }),
   };
 }
 
@@ -309,6 +327,17 @@ function buildPipelineInput(
   workspace: WorkspaceResolution,
   orchestration: OrchestrationConfig,
 ): PipelineInput {
+  let rescanFindings: RescanFinding[] | undefined;
+  if (args.rescanFindingsFile) {
+    try {
+      const raw = fs.readFileSync(args.rescanFindingsFile, 'utf-8');
+      rescanFindings = JSON.parse(raw) as RescanFinding[];
+    } catch (err) {
+      console.error(`Error: could not read rescan findings from ${args.rescanFindingsFile}: ${err}`);
+      process.exit(1);
+    }
+  }
+
   return {
     webUrl: args.webUrl,
     repoPath: args.repoPath,
@@ -321,6 +350,11 @@ function buildPipelineInput(
     ...(Object.keys(orchestration.pipelineConfig).length > 0 && { pipelineConfig: orchestration.pipelineConfig }),
     ...(orchestration.vulnClasses && { vulnClasses: orchestration.vulnClasses }),
     ...(orchestration.exploit !== undefined && { exploit: orchestration.exploit }),
+    ...(rescanFindings && rescanFindings.length > 0 && {
+      rescanMode: true,
+      rescanFindings,
+    }),
+    ...(args.sourceWorkspace && { sourceWorkspace: args.sourceWorkspace }),
   };
 }
 

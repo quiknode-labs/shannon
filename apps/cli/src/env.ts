@@ -37,7 +37,8 @@ const FORWARD_VARS = [
  */
 export function loadEnv(): void {
   if (getMode() === 'local') {
-    dotenv.config({ path: '.env', quiet: true });
+    const envPath = process.env.SHANNON_REPO_DIR ? `${process.env.SHANNON_REPO_DIR}/.env` : '.env';
+    dotenv.config({ path: envPath, quiet: true });
   } else {
     resolveConfig();
   }
