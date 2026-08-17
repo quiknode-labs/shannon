@@ -8,7 +8,7 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ensureImage, ensureInfra, randomSuffix, spawnWorker } from '../docker.js';
+import { ensureImage, ensureInfra, getInstanceId, randomSuffix, spawnWorker, workerNamePrefix } from '../docker.js';
 import { buildEnvFlags, loadEnv, validateCredentials } from '../env.js';
 import { getCredentialsPath, getWorkspacesDir, initHome } from '../home.js';
 import { isLocal } from '../mode.js';
@@ -48,13 +48,14 @@ export async function start(args: StartArgs): Promise<void> {
   fs.chmodSync(workspacesDir, 0o777);
 
   // 5. Ensure image (auto-build in dev, pull in npx) and start infra
+  const instanceId = getInstanceId();
   ensureImage(args.version);
-  await ensureInfra();
+  await ensureInfra(instanceId);
 
   // 6. Generate unique task queue and container name
   const suffix = randomSuffix();
   const taskQueue = `shannon-${suffix}`;
-  const containerName = `shannon-worker-${suffix}`;
+  const containerName = `${workerNamePrefix(instanceId)}${suffix}`;
 
   // 7. Generate workspace name if not provided
   const workspace =
@@ -105,7 +106,8 @@ export async function start(args: StartArgs): Promise<void> {
     workspacesDir,
     taskQueue,
     containerName,
-    envFlags: buildEnvFlags(),
+    instanceId,
+    envFlags: buildEnvFlags(instanceId),
     ...(config && { config }),
     ...(hasCredentials && { credentials: credentialsPath }),
     ...(promptsDir && { promptsDir }),

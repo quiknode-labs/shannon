@@ -19,6 +19,7 @@ import { start } from './commands/start.js';
 import { status } from './commands/status.js';
 import { stop } from './commands/stop.js';
 import { uninstall } from './commands/uninstall.js';
+import { workflowStatus } from './commands/workflow-status.js';
 import { workspaces } from './commands/workspaces.js';
 import { getMode } from './mode.js';
 import { displaySplash } from './splash.js';
@@ -68,9 +69,10 @@ Usage:${
   ${prefix} setup                                       Configure credentials`
   }
   ${prefix} start --url <url> --repo <path> [options]   Start a pentest scan
-  ${prefix} stop [--clean]                               Stop all containers
+  ${prefix} stop [-w <workspace>] [--clean]              Stop one scan, or all containers
   ${prefix} workspaces                                   List all workspaces
   ${prefix} logs <workspace>                             Tail workflow log
+  ${prefix} workflow-status <workspace>                  Query live Temporal status (JSON)
   ${prefix} status                                       Show running workers${
     mode === 'local'
       ? `
@@ -94,6 +96,7 @@ Examples:
   ${prefix} start -u https://example.com -r ${mode === 'local' ? 'my-repo' : './my-repo'}
   ${prefix} start -u https://example.com -r /path/to/repo -c config.yaml -w q1-audit
   ${prefix} logs q1-audit
+  ${prefix} stop -w q1-audit
   ${prefix} stop --clean
 ${
   mode === 'local'
@@ -208,9 +211,12 @@ switch (command) {
     await start({ ...parsed, version: getVersion() });
     break;
   }
-  case 'stop':
-    stop(args.includes('--clean'));
+  case 'stop': {
+    const wIndex = args.findIndex((a) => a === '-w' || a === '--workspace');
+    const workspace = wIndex !== -1 ? args[wIndex + 1] : undefined;
+    await stop(args.includes('--clean'), workspace);
     break;
+  }
   case 'logs': {
     const workspaceId = args[1];
     if (!workspaceId) {
@@ -219,6 +225,18 @@ switch (command) {
       process.exit(1);
     }
     logs(workspaceId);
+    break;
+  }
+  case 'workflow-status': {
+    const workspaceId = args[1];
+    if (!workspaceId) {
+      console.error('ERROR: Workspace ID is required');
+      console.error(
+        `Usage: ${getMode() === 'local' ? './shannon' : 'npx @keygraph/shannon'} workflow-status <workspace>`,
+      );
+      process.exit(1);
+    }
+    workflowStatus(workspaceId);
     break;
   }
   case 'workspaces':
