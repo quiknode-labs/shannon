@@ -93,7 +93,9 @@ export async function start(args: StartArgs): Promise<void> {
   }
 
   // 11. Resolve prompts directory (local mode only)
-  const promptsDir = isLocal() ? path.resolve('apps/worker/prompts') : undefined;
+  const promptsDir = isLocal()
+    ? path.join(process.env.SHANNON_REPO_DIR ?? process.cwd(), 'apps/worker/prompts')
+    : undefined;
 
   // 12. Display splash screen
   displaySplash(isLocal() ? undefined : args.version);

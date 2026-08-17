@@ -1,0 +1,10 @@
+@include(shared/_filesystem.txt)
+
+Please complete these tasks using your CLI tools:
+
+1. Navigate to https://example.com and take a screenshot using `playwright-cli -s={{PLAYWRIGHT_SESSION}}`.
+
+2. Save an analysis deliverable:
+   - Run: `save-deliverable --type INJECTION_ANALYSIS --content '# Injection Rescan Analysis\n\nRescan analysis complete. No remaining injection vulnerabilities identified.'`
+
+As a final step, return an empty array for vulnerabilities.

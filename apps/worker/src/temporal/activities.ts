@@ -29,6 +29,7 @@ import { DEFAULT_DELIVERABLES_SUBDIR, deliverablesDir } from '../paths.js';
 import { getContainer, getOrCreateContainer, removeContainer } from '../services/container.js';
 import { classifyErrorForTemporal, PentestError } from '../services/error-handling.js';
 import { ExploitationCheckerService } from '../services/exploitation-checker.js';
+import { generateFindingsIndex, generateRescanFindingsIndex } from '../services/findings-index.js';
 import { renderFindingsFromQueues } from '../services/findings-renderer.js';
 import { executeGitCommandWithRetry } from '../services/git-manager.js';
 import { runPreflightChecks } from '../services/preflight.js';
@@ -78,6 +79,9 @@ export interface ActivityInput {
   sastSarifPath?: string;
   skipGitCheck?: boolean;
   providerConfig?: ProviderConfig;
+
+  // Rescan context — pre-formatted string injected as {{RESCAN_CONTEXT}} in rescan prompts
+  rescanContext?: string;
 }
 
 /**
@@ -188,6 +192,7 @@ async function runAgentActivity(agentName: AgentName, input: ActivityInput): Pro
         ...(input.providerConfig !== undefined && { providerConfig: input.providerConfig }),
         ...(input.promptDir !== undefined && { promptDir: input.promptDir }),
         ...(input.configYAML !== undefined && { configYAML: input.configYAML }),
+        ...(input.rescanContext !== undefined && { rescanContext: input.rescanContext }),
       },
       auditSession,
       logger,
@@ -296,6 +301,52 @@ export async function runAuthzExploitAgent(input: ActivityInput): Promise<AgentM
 
 export async function runReportAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('report', input);
+}
+
+// === Rescan Agent Activities ===
+
+export async function runInjectionVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('injection-vuln-rescan', input);
+}
+
+export async function runXssVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('xss-vuln-rescan', input);
+}
+
+export async function runAuthVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('auth-vuln-rescan', input);
+}
+
+export async function runSsrfVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('ssrf-vuln-rescan', input);
+}
+
+export async function runAuthzVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('authz-vuln-rescan', input);
+}
+
+export async function runInjectionExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('injection-exploit-rescan', input);
+}
+
+export async function runXssExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('xss-exploit-rescan', input);
+}
+
+export async function runAuthExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('auth-exploit-rescan', input);
+}
+
+export async function runSsrfExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('ssrf-exploit-rescan', input);
+}
+
+export async function runAuthzExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('authz-exploit-rescan', input);
+}
+
+export async function runReportRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('report-rescan', input);
 }
 
 /**
@@ -759,6 +810,98 @@ export async function persistOrValidateRunScope(
   await atomicWrite(sessionPath, session);
 }
 
+/**
+ * Set up a rescan workspace by copying and filtering queue files from the source workspace.
+ *
+ * Copies:
+ * - Pre-recon and recon deliverables (for architectural context)
+ * - Exploitation queue files for each affected vuln class, filtered to the requested finding IDs
+ *
+ * The rescan agents will re-analyze these specific findings and update the queues.
+ */
+export async function setupRescanWorkspace(
+  input: ActivityInput,
+  sourceWorkspace: string,
+  rescanFindings: Array<{ findingId: string; vulnType: string }>,
+): Promise<void> {
+  const logger = createActivityLogger();
+  const destDeliverables = deliverablesDir(input.repoPath, input.deliverablesSubdir);
+  const sourceDeliverables = path.join('./workspaces', sourceWorkspace, 'deliverables');
+
+  // 1. Verify source workspace deliverables exist
+  const sourceExists = await fileExists(sourceDeliverables);
+  if (!sourceExists) {
+    throw ApplicationFailure.nonRetryable(
+      `Source workspace deliverables not found: ${sourceDeliverables}`,
+      'WorkspaceNotFoundError',
+    );
+  }
+
+  await fs.mkdir(destDeliverables, { recursive: true });
+
+  // 2. Copy recon context deliverables so rescan agents have architectural context
+  for (const contextFile of ['pre_recon_deliverable.md', 'recon_deliverable.md']) {
+    const src = path.join(sourceDeliverables, contextFile);
+    const dest = path.join(destDeliverables, contextFile);
+    const srcExists = await fileExists(src);
+    if (srcExists) {
+      await fs.copyFile(src, dest);
+      logger.info(`Copied context file: ${contextFile}`);
+    } else {
+      logger.warn(`Context file not found in source workspace: ${contextFile}`);
+    }
+  }
+
+  // 3. Build a map of finding IDs per vuln type for efficient filtering
+  const findingsByType: Record<string, Set<string>> = {};
+  for (const finding of rescanFindings) {
+    const existing = findingsByType[finding.vulnType];
+    if (existing) {
+      existing.add(finding.findingId);
+    } else {
+      findingsByType[finding.vulnType] = new Set([finding.findingId]);
+    }
+  }
+
+  // 4. Copy and filter each affected vuln type's exploitation queue
+  const queueFileMap: Record<string, string> = {
+    injection: 'injection_exploitation_queue.json',
+    xss: 'xss_exploitation_queue.json',
+    auth: 'auth_exploitation_queue.json',
+    ssrf: 'ssrf_exploitation_queue.json',
+    authz: 'authz_exploitation_queue.json',
+  };
+
+  for (const [vulnType, findingIds] of Object.entries(findingsByType)) {
+    const queueFilename = queueFileMap[vulnType];
+    if (!queueFilename) {
+      logger.warn(`Unknown vuln type in rescan findings, skipping: ${vulnType}`);
+      continue;
+    }
+
+    const srcQueue = path.join(sourceDeliverables, queueFilename);
+    const destQueue = path.join(destDeliverables, queueFilename);
+    const srcExists = await fileExists(srcQueue);
+
+    if (!srcExists) {
+      logger.warn(`Queue file not found in source workspace, skipping: ${queueFilename}`);
+      continue;
+    }
+
+    // Read, filter to requested IDs, and write filtered queue
+    const raw = await fs.readFile(srcQueue, 'utf8');
+    const queue = JSON.parse(raw) as { vulnerabilities?: Array<{ ID: string; [key: string]: unknown }> };
+    const filtered = (queue.vulnerabilities ?? []).filter((v) => findingIds.has(v.ID));
+    const filteredQueue = { ...queue, vulnerabilities: filtered };
+    await fs.writeFile(destQueue, JSON.stringify(filteredQueue, null, 2), 'utf8');
+    logger.info(
+      `Filtered ${queueFilename}: ${filtered.length}/${(queue.vulnerabilities ?? []).length} findings retained`,
+    );
+  }
+
+  logger.info('Rescan workspace setup complete');
+}
+
 async function findLatestCommit(gitDir: string, commitHashes: string[]): Promise<string> {
   if (commitHashes.length === 1) {
     const hash = commitHashes[0];
@@ -996,4 +1139,30 @@ export async function generateReportOutputActivity(input: ActivityInput): Promis
   if (result.outputPath) {
     logger.info(`Report output written to ${result.outputPath}`);
   }
+}
+
+/**
+ * Emit findings-index.json after a completed normal scan.
+ * Reads all exploitation queue files and writes a machine-readable index of
+ * finding IDs so consumers can submit targeted rescans.
+ */
+export async function generateFindingsIndexActivity(input: ActivityInput): Promise<void> {
+  const logger = createActivityLogger();
+  const dir = deliverablesDir(input.repoPath, input.deliverablesSubdir);
+  await generateFindingsIndex(dir, input.sessionId, logger);
+}
+
+/**
+ * Emit rescan-findings-index.json after a completed rescan.
+ * Derives FIXED / STILL_VULNERABLE / INCONCLUSIVE verdict per finding by
+ * comparing the post-rescan queue files against the submitted finding IDs.
+ */
+export async function generateRescanFindingsIndexActivity(
+  input: ActivityInput,
+  sourceWorkspace: string,
+  rescanFindings: ReadonlyArray<{ findingId: string; vulnType: string }>,
+): Promise<void> {
+  const logger = createActivityLogger();
+  const dir = deliverablesDir(input.repoPath, input.deliverablesSubdir);
+  await generateRescanFindingsIndex(dir, sourceWorkspace, input.sessionId, rescanFindings, logger);
 }

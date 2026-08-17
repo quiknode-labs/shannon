@@ -110,7 +110,8 @@ RUN mkdir -p /app/sessions /app/repos /app/workspaces && \
     chmod 777 /tmp/.cache && \
     chmod 777 /tmp/.config && \
     chmod 777 /tmp/.npm && \
-    chown -R pentest:pentest /app /tmp/.claude
+    chown -R pentest:pentest /app /tmp/.claude && \
+    chmod -R o+rX /app/apps/worker/dist /app/apps/worker/configs /app/node_modules
 
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh

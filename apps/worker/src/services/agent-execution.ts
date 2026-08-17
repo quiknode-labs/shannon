@@ -54,6 +54,7 @@ export interface AgentExecutionInput {
   apiKey?: string | undefined;
   promptDir?: string | undefined;
   providerConfig?: import('../types/config.js').ProviderConfig | undefined;
+  rescanContext?: string | undefined;
 }
 
 interface FailAgentOpts {
@@ -108,6 +109,7 @@ export class AgentExecutionService {
       apiKey,
       promptDir,
       providerConfig,
+      rescanContext,
     } = input;
 
     // 1. Load config (pre-parsed configData → raw YAML → file path)
@@ -123,7 +125,12 @@ export class AgentExecutionService {
     try {
       prompt = await loadPrompt(
         promptTemplate,
-        { webUrl, repoPath, AUTH_STATE_FILE: authStateFile(auditSession.sessionMetadata) },
+        {
+          webUrl,
+          repoPath,
+          AUTH_STATE_FILE: authStateFile(auditSession.sessionMetadata),
+          ...(rescanContext !== undefined && { RESCAN_CONTEXT: rescanContext }),
+        },
         distributedConfig,
         pipelineTestingMode,
         logger,

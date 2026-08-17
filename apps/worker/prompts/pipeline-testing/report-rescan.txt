@@ -1,0 +1,9 @@
+@include(shared/_filesystem.txt)
+
+## Pipeline Testing: Rescan Verification Report Agent
+
+Create the required rescan report deliverable:
+
+```
+save-deliverable --type RESCAN_VERIFICATION_REPORT --content '# Rescan Verification Report (Pipeline Test)\n\n**Target:** {{WEB_URL}}\n\n## Executive Summary\n\nRescan pipeline testing complete. All findings marked FIXED for pipeline testing purposes.\n\n## Summary Table\n\n| Finding ID | Vuln Type | Verdict |\n|---|---|---|\n| TEST-001 | injection | FIXED |'
+```

@@ -24,9 +24,11 @@ export function getWorkerImage(version: string): string {
 }
 
 function getComposeFile(): string {
-  return getMode() === 'local'
-    ? path.resolve('docker-compose.yml')
-    : path.resolve(__dirname, '..', 'infra', 'compose.yml');
+  if (getMode() === 'local') {
+    const repoDir = process.env.SHANNON_REPO_DIR ?? process.cwd();
+    return path.resolve(repoDir, 'docker-compose.yml');
+  }
+  return path.resolve(__dirname, '..', 'infra', 'compose.yml');
 }
 
 /** Generate an 8-char random hex suffix for container/queue names. */
@@ -279,6 +281,8 @@ export interface WorkerOptions {
   workspace: string;
   pipelineTesting?: boolean;
   debug?: boolean;
+  rescanFindingsFile?: string;
+  sourceWorkspace?: string;
 }
 
 /**
@@ -354,6 +358,14 @@ export function spawnWorker(opts: WorkerOptions): ChildProcess {
   args.push('--workspace', opts.workspace);
   if (opts.pipelineTesting) {
     args.push('--pipeline-testing');
+  }
+
+  if (opts.rescanFindingsFile) {
+    args.push('--rescan-findings-file', opts.rescanFindingsFile);
+  }
+
+  if (opts.sourceWorkspace) {
+    args.push('--source-workspace', opts.sourceWorkspace);
   }
 
   // Inherit stderr so `docker run` daemon errors surface to the user;

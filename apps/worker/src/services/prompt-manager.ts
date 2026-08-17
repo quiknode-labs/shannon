@@ -120,6 +120,7 @@ interface PromptVariables {
   repoPath: string;
   AUTH_STATE_FILE: string;
   PLAYWRIGHT_SESSION?: string;
+  RESCAN_CONTEXT?: string;
 }
 
 interface IncludeReplacement {
@@ -293,7 +294,8 @@ async function interpolateVariables(
       .replace(/{{REPO_PATH}}/g, variables.repoPath)
       .replace(/{{PLAYWRIGHT_SESSION}}/g, variables.PLAYWRIGHT_SESSION || 'agent1')
       .replace(/{{AUTH_CONTEXT}}/g, buildAuthContext(config))
-      .replace(/{{DESCRIPTION}}/g, config?.description ? `Description: ${config.description}` : '');
+      .replace(/{{DESCRIPTION}}/g, config?.description ? `Description: ${config.description}` : '')
+      .replace(/{{RESCAN_CONTEXT}}/g, variables.RESCAN_CONTEXT || '');
 
     const avoidUrlRules = config?.avoid?.filter((r) => r.type !== 'code_path') ?? [];
     const focusUrlRules = config?.focus?.filter((r) => r.type !== 'code_path') ?? [];
