@@ -84,6 +84,56 @@ const QUEUE_FILES: Record<VulnClass, string> = {
   authz: 'authz_exploitation_queue.json',
 };
 
+/**
+ * Pulls the agent's actual reasoning out of a still-vulnerable queue entry
+ * instead of a generic "was re-identified" stub, so security can see whether
+ * (and how) a recheck instruction was actually applied without opening the
+ * full rescan report. Field names differ by vuln class (injection/xss write
+ * mismatch_reason/witness_payload; auth/ssrf/authz write reason/guard_evidence/
+ * minimal_witness) so both are tried; falls back to null if neither is present.
+ */
+function extractQueueEvidence(f: RawFinding): string | null {
+  const reason = (f.reason ?? f.mismatch_reason) as string | undefined;
+  const guard = f.guard_evidence as string | undefined;
+  const witness = (f.minimal_witness ?? f.witness_payload) as string | undefined;
+
+  const parts: string[] = [];
+  if (reason) parts.push(reason);
+  if (guard && guard !== reason) parts.push(`Guard: ${guard}`);
+  if (witness) parts.push(`Reproduce: ${witness}`);
+  return parts.length ? parts.join(' ') : null;
+}
+
+const REPORT_VERDICT_HEADER = /^###\s+([A-Z]+-VULN-\d+)\s*[—-]+\s*(FIXED|STILL_VULNERABLE|INCONCLUSIVE)\b/i;
+const REPORT_EVIDENCE_BLOCK = /\*\*Evidence:\*\*\s*\n([\s\S]*?)(?:\n---|\n##|$)/i;
+
+/**
+ * Parses the report-rescan agent's own per-finding verdicts out of the final
+ * rescan_verification_report.md. This is the authoritative source when
+ * present: the report agent re-reads current source and reconciles evidence
+ * across every exploit-rescan agent, whereas the exploitation-queue-diff
+ * fallback below only holds up if an exploit agent reliably deletes its own
+ * queue entry the moment it confirms a fix — which it does not always do,
+ * so relying on the queue alone can report STILL_VULNERABLE for a finding
+ * the report already concluded is FIXED.
+ */
+function parseReportVerdicts(reportMd: string): Map<string, { verdict: RescanVerdict; evidence: string }> {
+  const results = new Map<string, { verdict: RescanVerdict; evidence: string }>();
+  const sections = reportMd.split(/\n(?=###\s+[A-Z]+-VULN-\d+\s)/);
+  for (const section of sections) {
+    const header = REPORT_VERDICT_HEADER.exec(section);
+    if (!header?.[1] || !header[2]) continue;
+    const findingId = header[1];
+    const verdict = header[2].toUpperCase() as RescanVerdict;
+    const evidenceMatch = REPORT_EVIDENCE_BLOCK.exec(section);
+    const evidence = evidenceMatch?.[1]
+      ? evidenceMatch[1].trim().slice(0, 2000)
+      : `Re-analysis verdict: ${verdict} — see full rescan report for detail.`;
+    results.set(findingId, { verdict, evidence });
+  }
+  return results;
+}
+
 function deriveSeverity(confidence: string, externallyExploitable: boolean): FindingIndexEntry['severity'] {
   const conf = confidence.toLowerCase();
   if (externallyExploitable) {
@@ -172,6 +222,16 @@ export async function generateRescanFindingsIndex(
 ): Promise<void> {
   const results: RescanFindingResult[] = [];
 
+  const reportPath = path.join(deliverablesDir, 'rescan_verification_report.md');
+  let reportVerdicts = new Map<string, { verdict: RescanVerdict; evidence: string }>();
+  if (await fs.pathExists(reportPath)) {
+    try {
+      reportVerdicts = parseReportVerdicts(await fs.readFile(reportPath, 'utf8'));
+    } catch {
+      // fall through to queue-diff for every finding
+    }
+  }
+
   // Group submitted findings by vulnType for efficient queue reads
   const byType = new Map<VulnClass, string[]>();
   for (const f of rescanFindings) {
@@ -184,26 +244,34 @@ export async function generateRescanFindingsIndex(
     const queuePath = path.join(deliverablesDir, QUEUE_FILES[vulnType]);
     const queueExists = await fs.pathExists(queuePath);
 
-    let remainingIds = new Set<string>();
+    let remaining = new Map<string, RawFinding>();
     if (queueExists) {
       try {
         const doc = (await fs.readJson(queuePath)) as QueueDoc;
-        remainingIds = new Set((doc.vulnerabilities ?? []).map((v) => v.ID));
+        remaining = new Map((doc.vulnerabilities ?? []).map((v) => [v.ID, v]));
       } catch {
         // treat as inconclusive on parse failure
       }
     }
 
     for (const findingId of ids) {
+      const fromReport = reportVerdicts.get(findingId);
+      if (fromReport) {
+        results.push({ findingId, vulnType, verdict: fromReport.verdict, evidence: fromReport.evidence });
+        continue;
+      }
+
       let verdict: RescanVerdict;
       let evidence: string;
 
       if (!queueExists) {
         verdict = 'INCONCLUSIVE';
         evidence = `Re-analysis queue for ${vulnType} was not produced. Manual review required.`;
-      } else if (remainingIds.has(findingId)) {
+      } else if (remaining.has(findingId)) {
         verdict = 'STILL_VULNERABLE';
-        evidence = `Finding ${findingId} was re-identified in the post-fix analysis queue. See exploitation evidence for proof.`;
+        evidence =
+          extractQueueEvidence(remaining.get(findingId) as RawFinding) ??
+          `Finding ${findingId} was re-identified in the post-fix analysis queue. See exploitation evidence for proof.`;
       } else {
         verdict = 'FIXED';
         evidence = `Finding ${findingId} was not re-identified after the developer's fix. The vulnerability appears to be resolved.`;
