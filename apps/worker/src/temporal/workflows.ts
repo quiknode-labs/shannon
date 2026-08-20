@@ -334,6 +334,27 @@ async function runRescanPipeline(
         runVuln: () => a.runAuthzVulnRescanAgent(rescanActivityInput),
         runExploit: () => a.runAuthzExploitRescanAgent(rescanActivityInput),
       },
+      {
+        vulnType: 'prompt_injection',
+        vulnAgent: 'prompt_injection-vuln-rescan',
+        exploitAgent: 'prompt_injection-exploit-rescan',
+        runVuln: () => a.runPromptInjectionVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runPromptInjectionExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'plugin_design',
+        vulnAgent: 'plugin_design-vuln-rescan',
+        exploitAgent: 'plugin_design-exploit-rescan',
+        runVuln: () => a.runPluginDesignVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runPluginDesignExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'info_disclosure',
+        vulnAgent: 'info_disclosure-vuln-rescan',
+        exploitAgent: 'info_disclosure-exploit-rescan',
+        runVuln: () => a.runInfoDisclosureVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runInfoDisclosureExploitRescanAgent(rescanActivityInput),
+      },
     ];
 
     const maxConcurrent = input.pipelineConfig?.max_concurrent_pipelines ?? 5;
@@ -637,6 +658,27 @@ export async function pentestPipeline(input: PipelineInput): Promise<PipelineSta
         exploitAgent: 'authz-exploit',
         runVuln: () => a.runAuthzVulnAgent(activityInput),
         runExploit: () => a.runAuthzExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'prompt_injection',
+        vulnAgent: 'prompt_injection-vuln',
+        exploitAgent: 'prompt_injection-exploit',
+        runVuln: () => a.runPromptInjectionVulnAgent(activityInput),
+        runExploit: () => a.runPromptInjectionExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'plugin_design',
+        vulnAgent: 'plugin_design-vuln',
+        exploitAgent: 'plugin_design-exploit',
+        runVuln: () => a.runPluginDesignVulnAgent(activityInput),
+        runExploit: () => a.runPluginDesignExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'info_disclosure',
+        vulnAgent: 'info_disclosure-vuln',
+        exploitAgent: 'info_disclosure-exploit',
+        runVuln: () => a.runInfoDisclosureVulnAgent(activityInput),
+        runExploit: () => a.runInfoDisclosureExploitAgent(activityInput),
       },
     ];
   }

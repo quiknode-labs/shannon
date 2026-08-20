@@ -17,7 +17,16 @@
  */
 
 import { fs, path } from 'zx';
-import type { AuthFinding, AuthzFinding, InjectionFinding, SsrfFinding, XssFinding } from '../ai/queue-schemas.js';
+import type {
+  AuthFinding,
+  AuthzFinding,
+  InfoDisclosureFinding,
+  InjectionFinding,
+  PluginDesignFinding,
+  PromptInjectionFinding,
+  SsrfFinding,
+  XssFinding,
+} from '../ai/queue-schemas.js';
 import { deliverablesDir } from '../paths.js';
 import type { ActivityLogger } from '../types/activity-logger.js';
 import type { VulnClass } from '../types/config.js';
@@ -134,6 +143,48 @@ function renderXssEntry(e: XssFinding): string {
   );
 }
 
+function renderPromptInjectionEntry(e: PromptInjectionFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderPluginDesignEntry(e: PluginDesignFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderInfoDisclosureEntry(e: InfoDisclosureFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
 // === Class Registry ===
 
 const CLASSES: Record<VulnClass, ClassConfig<unknown>> = {
@@ -171,6 +222,27 @@ const CLASSES: Record<VulnClass, ClassConfig<unknown>> = {
     queueFile: 'ssrf_exploitation_queue.json',
     findingsFile: 'ssrf_findings.md',
     renderEntry: (e) => renderSsrfEntry(e as SsrfFinding),
+  },
+  prompt_injection: {
+    heading: 'Prompt Injection',
+    noneFoundLabel: 'prompt injection',
+    queueFile: 'prompt_injection_exploitation_queue.json',
+    findingsFile: 'prompt_injection_findings.md',
+    renderEntry: (e) => renderPromptInjectionEntry(e as PromptInjectionFinding),
+  },
+  plugin_design: {
+    heading: 'Insecure Plugin Design',
+    noneFoundLabel: 'insecure plugin design',
+    queueFile: 'plugin_design_exploitation_queue.json',
+    findingsFile: 'plugin_design_findings.md',
+    renderEntry: (e) => renderPluginDesignEntry(e as PluginDesignFinding),
+  },
+  info_disclosure: {
+    heading: 'Sensitive Information Disclosure',
+    noneFoundLabel: 'sensitive information disclosure',
+    queueFile: 'info_disclosure_exploitation_queue.json',
+    findingsFile: 'info_disclosure_findings.md',
+    renderEntry: (e) => renderInfoDisclosureEntry(e as InfoDisclosureFinding),
   },
 };
 

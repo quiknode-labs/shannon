@@ -91,6 +91,18 @@ const VULN_TYPE_CONFIG: VulnTypeConfig = Object.freeze({
     deliverable: 'authz_analysis_deliverable.md',
     queue: 'authz_exploitation_queue.json',
   }),
+  prompt_injection: Object.freeze({
+    deliverable: 'prompt_injection_analysis_deliverable.md',
+    queue: 'prompt_injection_exploitation_queue.json',
+  }),
+  plugin_design: Object.freeze({
+    deliverable: 'plugin_design_analysis_deliverable.md',
+    queue: 'plugin_design_exploitation_queue.json',
+  }),
+  info_disclosure: Object.freeze({
+    deliverable: 'info_disclosure_analysis_deliverable.md',
+    queue: 'info_disclosure_exploitation_queue.json',
+  }),
 }) as VulnTypeConfig;
 
 // Pure function to create validation rule

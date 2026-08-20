@@ -31,6 +31,21 @@ export async function assembleFinalReport(
     { name: 'Authentication', paths: ['auth_exploitation_evidence.md', 'auth_findings.md'], required: false },
     { name: 'SSRF', paths: ['ssrf_exploitation_evidence.md', 'ssrf_findings.md'], required: false },
     { name: 'Authorization', paths: ['authz_exploitation_evidence.md', 'authz_findings.md'], required: false },
+    {
+      name: 'Prompt Injection',
+      paths: ['prompt_injection_exploitation_evidence.md', 'prompt_injection_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Insecure Plugin Design',
+      paths: ['plugin_design_exploitation_evidence.md', 'plugin_design_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Sensitive Information Disclosure',
+      paths: ['info_disclosure_exploitation_evidence.md', 'info_disclosure_findings.md'],
+      required: false,
+    },
   ];
 
   const dir = deliverablesDir(sourceDir, deliverablesSubdir);

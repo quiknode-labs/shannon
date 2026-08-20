@@ -90,6 +90,27 @@ const AuthzVulnerability = baseVulnerability.extend({
   minimal_witness: z.string().optional(),
 });
 
+const PromptInjectionVulnerability = baseVulnerability.extend({
+  vulnerable_component: z.string().optional(),
+  attack_vector: z.string().optional(),
+  evidence: z.string().optional(),
+  impact: z.string().optional(),
+});
+
+const PluginDesignVulnerability = baseVulnerability.extend({
+  vulnerable_component: z.string().optional(),
+  attack_vector: z.string().optional(),
+  evidence: z.string().optional(),
+  impact: z.string().optional(),
+});
+
+const InfoDisclosureVulnerability = baseVulnerability.extend({
+  vulnerable_component: z.string().optional(),
+  attack_vector: z.string().optional(),
+  evidence: z.string().optional(),
+  impact: z.string().optional(),
+});
+
 // === Inferred Entry Types (consumed by renderer) ===
 
 export type InjectionFinding = z.infer<typeof InjectionVulnerability>;
@@ -97,6 +118,9 @@ export type XssFinding = z.infer<typeof XssVulnerability>;
 export type AuthFinding = z.infer<typeof AuthVulnerability>;
 export type SsrfFinding = z.infer<typeof SsrfVulnerability>;
 export type AuthzFinding = z.infer<typeof AuthzVulnerability>;
+export type PromptInjectionFinding = z.infer<typeof PromptInjectionVulnerability>;
+export type PluginDesignFinding = z.infer<typeof PluginDesignVulnerability>;
+export type InfoDisclosureFinding = z.infer<typeof InfoDisclosureVulnerability>;
 
 // === Convert to JSON Schema for SDK ===
 
@@ -190,6 +214,42 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
         ),
       }),
     ),
+    'prompt_injection-vuln': toOutputFormat(
+      z.object({
+        vulnerabilities: z.array(
+          base.extend({
+            vulnerable_component: z.string().optional(),
+            attack_vector: z.string().optional(),
+            evidence: z.string().optional(),
+            impact: z.string().optional(),
+          }),
+        ),
+      }),
+    ),
+    'plugin_design-vuln': toOutputFormat(
+      z.object({
+        vulnerabilities: z.array(
+          base.extend({
+            vulnerable_component: z.string().optional(),
+            attack_vector: z.string().optional(),
+            evidence: z.string().optional(),
+            impact: z.string().optional(),
+          }),
+        ),
+      }),
+    ),
+    'info_disclosure-vuln': toOutputFormat(
+      z.object({
+        vulnerabilities: z.array(
+          base.extend({
+            vulnerable_component: z.string().optional(),
+            attack_vector: z.string().optional(),
+            evidence: z.string().optional(),
+            impact: z.string().optional(),
+          }),
+        ),
+      }),
+    ),
   };
 }
 
@@ -202,6 +262,9 @@ const VULN_AGENT_QUEUE_FILENAMES: Partial<Record<AgentName, string>> = {
   'auth-vuln': 'auth_exploitation_queue.json',
   'ssrf-vuln': 'ssrf_exploitation_queue.json',
   'authz-vuln': 'authz_exploitation_queue.json',
+  'prompt_injection-vuln': 'prompt_injection_exploitation_queue.json',
+  'plugin_design-vuln': 'plugin_design_exploitation_queue.json',
+  'info_disclosure-vuln': 'info_disclosure_exploitation_queue.json',
 };
 
 /** Returns the structured output format for a vuln agent, or undefined for non-vuln agents. */

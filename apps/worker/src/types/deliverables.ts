@@ -23,6 +23,9 @@ export enum DeliverableType {
   AUTH_ANALYSIS = 'AUTH_ANALYSIS',
   AUTHZ_ANALYSIS = 'AUTHZ_ANALYSIS',
   SSRF_ANALYSIS = 'SSRF_ANALYSIS',
+  PROMPT_INJECTION_ANALYSIS = 'PROMPT_INJECTION_ANALYSIS',
+  PLUGIN_DESIGN_ANALYSIS = 'PLUGIN_DESIGN_ANALYSIS',
+  INFO_DISCLOSURE_ANALYSIS = 'INFO_DISCLOSURE_ANALYSIS',
 
   // Exploitation agents
   INJECTION_EVIDENCE = 'INJECTION_EVIDENCE',
@@ -30,6 +33,9 @@ export enum DeliverableType {
   AUTH_EVIDENCE = 'AUTH_EVIDENCE',
   AUTHZ_EVIDENCE = 'AUTHZ_EVIDENCE',
   SSRF_EVIDENCE = 'SSRF_EVIDENCE',
+  PROMPT_INJECTION_EVIDENCE = 'PROMPT_INJECTION_EVIDENCE',
+  PLUGIN_DESIGN_EVIDENCE = 'PLUGIN_DESIGN_EVIDENCE',
+  INFO_DISCLOSURE_EVIDENCE = 'INFO_DISCLOSURE_EVIDENCE',
 }
 
 /**
@@ -43,9 +49,15 @@ export const DELIVERABLE_FILENAMES: Record<DeliverableType, string> = {
   [DeliverableType.AUTH_ANALYSIS]: 'auth_analysis_deliverable.md',
   [DeliverableType.AUTHZ_ANALYSIS]: 'authz_analysis_deliverable.md',
   [DeliverableType.SSRF_ANALYSIS]: 'ssrf_analysis_deliverable.md',
+  [DeliverableType.PROMPT_INJECTION_ANALYSIS]: 'prompt_injection_analysis_deliverable.md',
+  [DeliverableType.PLUGIN_DESIGN_ANALYSIS]: 'plugin_design_analysis_deliverable.md',
+  [DeliverableType.INFO_DISCLOSURE_ANALYSIS]: 'info_disclosure_analysis_deliverable.md',
   [DeliverableType.INJECTION_EVIDENCE]: 'injection_exploitation_evidence.md',
   [DeliverableType.XSS_EVIDENCE]: 'xss_exploitation_evidence.md',
   [DeliverableType.AUTH_EVIDENCE]: 'auth_exploitation_evidence.md',
   [DeliverableType.AUTHZ_EVIDENCE]: 'authz_exploitation_evidence.md',
   [DeliverableType.SSRF_EVIDENCE]: 'ssrf_exploitation_evidence.md',
+  [DeliverableType.PROMPT_INJECTION_EVIDENCE]: 'prompt_injection_exploitation_evidence.md',
+  [DeliverableType.PLUGIN_DESIGN_EVIDENCE]: 'plugin_design_exploitation_evidence.md',
+  [DeliverableType.INFO_DISCLOSURE_EVIDENCE]: 'info_disclosure_exploitation_evidence.md',
 };

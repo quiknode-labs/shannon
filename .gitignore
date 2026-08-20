@@ -5,3 +5,13 @@ credentials/
 dist/
 repos/
 .turbo/
+
+# Prompt files for externally-supplied vulnerability classes. These are
+# populated onto disk by the invoking deployment at runtime (not part of
+# this repo) and must never be committed here.
+apps/worker/prompts/*prompt_injection*
+apps/worker/prompts/*plugin_design*
+apps/worker/prompts/*info_disclosure*
+apps/worker/prompts/pipeline-testing/*prompt_injection*
+apps/worker/prompts/pipeline-testing/*plugin_design*
+apps/worker/prompts/pipeline-testing/*info_disclosure*

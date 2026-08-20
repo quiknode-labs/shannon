@@ -279,6 +279,18 @@ export async function runAuthzVulnAgent(input: ActivityInput): Promise<AgentMetr
   return runAgentActivity('authz-vuln', input);
 }
 
+export async function runPromptInjectionVulnAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('prompt_injection-vuln', input);
+}
+
+export async function runPluginDesignVulnAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('plugin_design-vuln', input);
+}
+
+export async function runInfoDisclosureVulnAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('info_disclosure-vuln', input);
+}
+
 export async function runInjectionExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('injection-exploit', input);
 }
@@ -297,6 +309,18 @@ export async function runSsrfExploitAgent(input: ActivityInput): Promise<AgentMe
 
 export async function runAuthzExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('authz-exploit', input);
+}
+
+export async function runPromptInjectionExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('prompt_injection-exploit', input);
+}
+
+export async function runPluginDesignExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('plugin_design-exploit', input);
+}
+
+export async function runInfoDisclosureExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('info_disclosure-exploit', input);
 }
 
 export async function runReportAgent(input: ActivityInput): Promise<AgentMetrics> {
@@ -325,6 +349,18 @@ export async function runAuthzVulnRescanAgent(input: ActivityInput): Promise<Age
   return runAgentActivity('authz-vuln-rescan', input);
 }
 
+export async function runPromptInjectionVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('prompt_injection-vuln-rescan', input);
+}
+
+export async function runPluginDesignVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('plugin_design-vuln-rescan', input);
+}
+
+export async function runInfoDisclosureVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('info_disclosure-vuln-rescan', input);
+}
+
 export async function runInjectionExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('injection-exploit-rescan', input);
 }
@@ -343,6 +379,18 @@ export async function runSsrfExploitRescanAgent(input: ActivityInput): Promise<A
 
 export async function runAuthzExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('authz-exploit-rescan', input);
+}
+
+export async function runPromptInjectionExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('prompt_injection-exploit-rescan', input);
+}
+
+export async function runPluginDesignExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('plugin_design-exploit-rescan', input);
+}
+
+export async function runInfoDisclosureExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('info_disclosure-exploit-rescan', input);
 }
 
 export async function runReportRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
@@ -870,6 +918,9 @@ export async function setupRescanWorkspace(
     auth: 'auth_exploitation_queue.json',
     ssrf: 'ssrf_exploitation_queue.json',
     authz: 'authz_exploitation_queue.json',
+    prompt_injection: 'prompt_injection_exploitation_queue.json',
+    plugin_design: 'plugin_design_exploitation_queue.json',
+    info_disclosure: 'info_disclosure_exploitation_queue.json',
   };
 
   for (const [vulnType, findingIds] of Object.entries(findingsByType)) {

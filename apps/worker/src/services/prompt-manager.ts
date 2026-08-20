@@ -55,6 +55,21 @@ const VULN_SUMMARY_SPECS: Record<VulnClass, VulnSummarySpec> = {
     evidenceSection: 'SSRF Exploitation Evidence',
     noneFoundLabel: 'SSRF',
   },
+  prompt_injection: {
+    heading: 'Prompt Injection Vulnerabilities',
+    evidenceSection: 'Prompt Injection Exploitation Evidence',
+    noneFoundLabel: 'prompt injection',
+  },
+  plugin_design: {
+    heading: 'Insecure Plugin Design / Excessive Agency Vulnerabilities',
+    evidenceSection: 'Plugin Design Exploitation Evidence',
+    noneFoundLabel: 'insecure plugin design',
+  },
+  info_disclosure: {
+    heading: 'Sensitive Information Disclosure Vulnerabilities',
+    evidenceSection: 'Info Disclosure Exploitation Evidence',
+    noneFoundLabel: 'sensitive information disclosure',
+  },
 };
 
 function renderVulnSummarySubsections(selected: readonly VulnClass[]): string {
@@ -340,7 +355,9 @@ async function interpolateVariables(
     const vulnClasses = config?.vuln_classes ?? [];
     result = result.replace(
       /{{VULN_CLASSES_TESTED}}/g,
-      vulnClasses.length > 0 ? vulnClasses.join(', ') : 'injection, xss, auth, authz, ssrf',
+      vulnClasses.length > 0
+        ? vulnClasses.join(', ')
+        : 'injection, xss, auth, authz, ssrf, prompt_injection, plugin_design, info_disclosure',
     );
     result = result.replace(/{{VULN_SUMMARY_SUBSECTIONS}}/g, renderVulnSummarySubsections(vulnClasses));
 

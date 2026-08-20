@@ -69,6 +69,9 @@ interface RawFinding {
   vulnerable_code_location?: string;
   source_endpoint?: string;
   endpoint?: string;
+  // Prompt Injection / Plugin Design / Info Disclosure
+  vulnerable_component?: string;
+  attack_vector?: string;
   [key: string]: unknown;
 }
 
@@ -82,6 +85,9 @@ const QUEUE_FILES: Record<VulnClass, string> = {
   auth: 'auth_exploitation_queue.json',
   ssrf: 'ssrf_exploitation_queue.json',
   authz: 'authz_exploitation_queue.json',
+  prompt_injection: 'prompt_injection_exploitation_queue.json',
+  plugin_design: 'plugin_design_exploitation_queue.json',
+  info_disclosure: 'info_disclosure_exploitation_queue.json',
 };
 
 /**
@@ -156,6 +162,10 @@ function extractCodeLocation(finding: RawFinding, vulnType: VulnClass): string {
       return finding.vulnerable_code_location ?? finding.source_endpoint ?? '';
     case 'authz':
       return finding.vulnerable_code_location ?? finding.endpoint ?? '';
+    case 'prompt_injection':
+    case 'plugin_design':
+    case 'info_disclosure':
+      return finding.vulnerable_component ?? finding.attack_vector ?? '';
   }
 }
 

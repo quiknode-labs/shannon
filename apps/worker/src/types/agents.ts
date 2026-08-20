@@ -20,11 +20,17 @@ export const ALL_AGENTS = [
   'auth-vuln',
   'ssrf-vuln',
   'authz-vuln',
+  'prompt_injection-vuln',
+  'plugin_design-vuln',
+  'info_disclosure-vuln',
   'injection-exploit',
   'xss-exploit',
   'auth-exploit',
   'ssrf-exploit',
   'authz-exploit',
+  'prompt_injection-exploit',
+  'plugin_design-exploit',
+  'info_disclosure-exploit',
   'report',
 ] as const;
 
@@ -35,11 +41,17 @@ export const RESCAN_AGENTS = [
   'auth-vuln-rescan',
   'ssrf-vuln-rescan',
   'authz-vuln-rescan',
+  'prompt_injection-vuln-rescan',
+  'plugin_design-vuln-rescan',
+  'info_disclosure-vuln-rescan',
   'injection-exploit-rescan',
   'xss-exploit-rescan',
   'auth-exploit-rescan',
   'ssrf-exploit-rescan',
   'authz-exploit-rescan',
+  'prompt_injection-exploit-rescan',
+  'plugin_design-exploit-rescan',
+  'info_disclosure-exploit-rescan',
   'report-rescan',
 ] as const;
 
@@ -51,7 +63,7 @@ export type RescanAgentName = (typeof RESCAN_AGENTS)[number];
  */
 export type AgentName = (typeof ALL_AGENTS)[number] | RescanAgentName;
 
-export type PlaywrightSession = 'agent1' | 'agent2' | 'agent3' | 'agent4' | 'agent5';
+export type PlaywrightSession = 'agent1' | 'agent2' | 'agent3' | 'agent4' | 'agent5' | 'agent6' | 'agent7' | 'agent8';
 
 import type { ActivityLogger } from './activity-logger.js';
 
@@ -71,7 +83,15 @@ export interface AgentDefinition {
 /**
  * Vulnerability types supported by the pipeline.
  */
-export type VulnType = 'injection' | 'xss' | 'auth' | 'ssrf' | 'authz';
+export type VulnType =
+  | 'injection'
+  | 'xss'
+  | 'auth'
+  | 'ssrf'
+  | 'authz'
+  | 'prompt_injection'
+  | 'plugin_design'
+  | 'info_disclosure';
 
 /**
  * Decision returned by queue validation for exploitation phase.

@@ -40,11 +40,17 @@ export function getAgentPrefix(description: string): string {
     'auth-vuln': '[Auth]',
     'authz-vuln': '[Authz]',
     'ssrf-vuln': '[SSRF]',
+    'prompt_injection-vuln': '[Prompt Injection]',
+    'plugin_design-vuln': '[Plugin Design]',
+    'info_disclosure-vuln': '[Info Disclosure]',
     'injection-exploit': '[Injection]',
     'xss-exploit': '[XSS]',
     'auth-exploit': '[Auth]',
     'authz-exploit': '[Authz]',
     'ssrf-exploit': '[SSRF]',
+    'prompt_injection-exploit': '[Prompt Injection]',
+    'plugin_design-exploit': '[Plugin Design]',
+    'info_disclosure-exploit': '[Info Disclosure]',
   };
 
   // First try to match by agent name directly
@@ -61,6 +67,9 @@ export function getAgentPrefix(description: string): string {
   if (description.includes('authz')) return '[Authz]'; // Check authz before auth
   if (description.includes('auth')) return '[Auth]';
   if (description.includes('ssrf')) return '[SSRF]';
+  if (description.includes('prompt_injection')) return '[Prompt Injection]';
+  if (description.includes('plugin_design')) return '[Plugin Design]';
+  if (description.includes('info_disclosure')) return '[Info Disclosure]';
 
   return '[Agent]';
 }
