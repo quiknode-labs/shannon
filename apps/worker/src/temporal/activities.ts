@@ -307,6 +307,18 @@ export async function runUnboundedConsumptionVulnAgent(input: ActivityInput): Pr
   return runAgentActivity('unbounded_consumption-vuln', input);
 }
 
+export async function runCryptoFailuresVulnAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('crypto_failures-vuln', input);
+}
+
+export async function runSecurityMisconfigurationVulnAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('security_misconfiguration-vuln', input);
+}
+
+export async function runInsecureDeserializationVulnAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('insecure_deserialization-vuln', input);
+}
+
 export async function runInjectionExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('injection-exploit', input);
 }
@@ -353,6 +365,18 @@ export async function runVectorWeaknessesExploitAgent(input: ActivityInput): Pro
 
 export async function runUnboundedConsumptionExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('unbounded_consumption-exploit', input);
+}
+
+export async function runCryptoFailuresExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('crypto_failures-exploit', input);
+}
+
+export async function runSecurityMisconfigurationExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('security_misconfiguration-exploit', input);
+}
+
+export async function runInsecureDeserializationExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('insecure_deserialization-exploit', input);
 }
 
 export async function runReportAgent(input: ActivityInput): Promise<AgentMetrics> {
@@ -409,6 +433,18 @@ export async function runUnboundedConsumptionVulnRescanAgent(input: ActivityInpu
   return runAgentActivity('unbounded_consumption-vuln-rescan', input);
 }
 
+export async function runCryptoFailuresVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('crypto_failures-vuln-rescan', input);
+}
+
+export async function runSecurityMisconfigurationVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('security_misconfiguration-vuln-rescan', input);
+}
+
+export async function runInsecureDeserializationVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('insecure_deserialization-vuln-rescan', input);
+}
+
 export async function runInjectionExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('injection-exploit-rescan', input);
 }
@@ -455,6 +491,18 @@ export async function runVectorWeaknessesExploitRescanAgent(input: ActivityInput
 
 export async function runUnboundedConsumptionExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('unbounded_consumption-exploit-rescan', input);
+}
+
+export async function runCryptoFailuresExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('crypto_failures-exploit-rescan', input);
+}
+
+export async function runSecurityMisconfigurationExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('security_misconfiguration-exploit-rescan', input);
+}
+
+export async function runInsecureDeserializationExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('insecure_deserialization-exploit-rescan', input);
 }
 
 export async function runReportRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
@@ -989,6 +1037,9 @@ export async function setupRescanWorkspace(
     prompt_leakage: 'prompt_leakage_exploitation_queue.json',
     vector_weaknesses: 'vector_weaknesses_exploitation_queue.json',
     unbounded_consumption: 'unbounded_consumption_exploitation_queue.json',
+    crypto_failures: 'crypto_failures_exploitation_queue.json',
+    security_misconfiguration: 'security_misconfiguration_exploitation_queue.json',
+    insecure_deserialization: 'insecure_deserialization_exploitation_queue.json',
   };
 
   for (const [vulnType, findingIds] of Object.entries(findingsByType)) {

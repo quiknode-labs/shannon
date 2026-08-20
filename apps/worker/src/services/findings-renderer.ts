@@ -20,12 +20,15 @@ import { fs, path } from 'zx';
 import type {
   AuthFinding,
   AuthzFinding,
+  CryptoFailuresFinding,
   InfoDisclosureFinding,
   InjectionFinding,
+  InsecureDeserializationFinding,
   OutputHandlingFinding,
   PluginDesignFinding,
   PromptInjectionFinding,
   PromptLeakageFinding,
+  SecurityMisconfigurationFinding,
   SsrfFinding,
   UnboundedConsumptionFinding,
   VectorWeaknessesFinding,
@@ -245,6 +248,48 @@ function renderUnboundedConsumptionEntry(e: UnboundedConsumptionFinding): string
   );
 }
 
+function renderCryptoFailuresEntry(e: CryptoFailuresFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderSecurityMisconfigurationEntry(e: SecurityMisconfigurationFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderInsecureDeserializationEntry(e: InsecureDeserializationFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
 // === Class Registry ===
 
 const CLASSES: Record<VulnClass, ClassConfig<unknown>> = {
@@ -331,6 +376,27 @@ const CLASSES: Record<VulnClass, ClassConfig<unknown>> = {
     queueFile: 'unbounded_consumption_exploitation_queue.json',
     findingsFile: 'unbounded_consumption_findings.md',
     renderEntry: (e) => renderUnboundedConsumptionEntry(e as UnboundedConsumptionFinding),
+  },
+  crypto_failures: {
+    heading: 'Cryptographic Failures',
+    noneFoundLabel: 'cryptographic failure',
+    queueFile: 'crypto_failures_exploitation_queue.json',
+    findingsFile: 'crypto_failures_findings.md',
+    renderEntry: (e) => renderCryptoFailuresEntry(e as CryptoFailuresFinding),
+  },
+  security_misconfiguration: {
+    heading: 'Security Misconfiguration',
+    noneFoundLabel: 'security misconfiguration',
+    queueFile: 'security_misconfiguration_exploitation_queue.json',
+    findingsFile: 'security_misconfiguration_findings.md',
+    renderEntry: (e) => renderSecurityMisconfigurationEntry(e as SecurityMisconfigurationFinding),
+  },
+  insecure_deserialization: {
+    heading: 'Insecure Deserialization',
+    noneFoundLabel: 'insecure deserialization',
+    queueFile: 'insecure_deserialization_exploitation_queue.json',
+    findingsFile: 'insecure_deserialization_findings.md',
+    renderEntry: (e) => renderInsecureDeserializationEntry(e as InsecureDeserializationFinding),
   },
 };
 

@@ -383,6 +383,27 @@ async function runRescanPipeline(
         runVuln: () => a.runUnboundedConsumptionVulnRescanAgent(rescanActivityInput),
         runExploit: () => a.runUnboundedConsumptionExploitRescanAgent(rescanActivityInput),
       },
+      {
+        vulnType: 'crypto_failures',
+        vulnAgent: 'crypto_failures-vuln-rescan',
+        exploitAgent: 'crypto_failures-exploit-rescan',
+        runVuln: () => a.runCryptoFailuresVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runCryptoFailuresExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'security_misconfiguration',
+        vulnAgent: 'security_misconfiguration-vuln-rescan',
+        exploitAgent: 'security_misconfiguration-exploit-rescan',
+        runVuln: () => a.runSecurityMisconfigurationVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runSecurityMisconfigurationExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'insecure_deserialization',
+        vulnAgent: 'insecure_deserialization-vuln-rescan',
+        exploitAgent: 'insecure_deserialization-exploit-rescan',
+        runVuln: () => a.runInsecureDeserializationVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runInsecureDeserializationExploitRescanAgent(rescanActivityInput),
+      },
     ];
 
     const maxConcurrent = input.pipelineConfig?.max_concurrent_pipelines ?? 5;
@@ -735,6 +756,27 @@ export async function pentestPipeline(input: PipelineInput): Promise<PipelineSta
         exploitAgent: 'unbounded_consumption-exploit',
         runVuln: () => a.runUnboundedConsumptionVulnAgent(activityInput),
         runExploit: () => a.runUnboundedConsumptionExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'crypto_failures',
+        vulnAgent: 'crypto_failures-vuln',
+        exploitAgent: 'crypto_failures-exploit',
+        runVuln: () => a.runCryptoFailuresVulnAgent(activityInput),
+        runExploit: () => a.runCryptoFailuresExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'security_misconfiguration',
+        vulnAgent: 'security_misconfiguration-vuln',
+        exploitAgent: 'security_misconfiguration-exploit',
+        runVuln: () => a.runSecurityMisconfigurationVulnAgent(activityInput),
+        runExploit: () => a.runSecurityMisconfigurationExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'insecure_deserialization',
+        vulnAgent: 'insecure_deserialization-vuln',
+        exploitAgent: 'insecure_deserialization-exploit',
+        runVuln: () => a.runInsecureDeserializationVulnAgent(activityInput),
+        runExploit: () => a.runInsecureDeserializationExploitAgent(activityInput),
       },
     ];
   }

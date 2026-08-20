@@ -47,6 +47,9 @@ export function getAgentPrefix(description: string): string {
     'prompt_leakage-vuln': '[Prompt Leakage]',
     'vector_weaknesses-vuln': '[Vector Weaknesses]',
     'unbounded_consumption-vuln': '[Unbounded Consumption]',
+    'crypto_failures-vuln': '[Crypto Failures]',
+    'security_misconfiguration-vuln': '[Security Misconfiguration]',
+    'insecure_deserialization-vuln': '[Insecure Deserialization]',
     'injection-exploit': '[Injection]',
     'xss-exploit': '[XSS]',
     'auth-exploit': '[Auth]',
@@ -59,6 +62,9 @@ export function getAgentPrefix(description: string): string {
     'prompt_leakage-exploit': '[Prompt Leakage]',
     'vector_weaknesses-exploit': '[Vector Weaknesses]',
     'unbounded_consumption-exploit': '[Unbounded Consumption]',
+    'crypto_failures-exploit': '[Crypto Failures]',
+    'security_misconfiguration-exploit': '[Security Misconfiguration]',
+    'insecure_deserialization-exploit': '[Insecure Deserialization]',
   };
 
   // First try to match by agent name directly

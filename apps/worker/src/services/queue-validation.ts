@@ -119,6 +119,18 @@ const VULN_TYPE_CONFIG: VulnTypeConfig = Object.freeze({
     deliverable: 'unbounded_consumption_analysis_deliverable.md',
     queue: 'unbounded_consumption_exploitation_queue.json',
   }),
+  crypto_failures: Object.freeze({
+    deliverable: 'crypto_failures_analysis_deliverable.md',
+    queue: 'crypto_failures_exploitation_queue.json',
+  }),
+  security_misconfiguration: Object.freeze({
+    deliverable: 'security_misconfiguration_analysis_deliverable.md',
+    queue: 'security_misconfiguration_exploitation_queue.json',
+  }),
+  insecure_deserialization: Object.freeze({
+    deliverable: 'insecure_deserialization_analysis_deliverable.md',
+    queue: 'insecure_deserialization_exploitation_queue.json',
+  }),
 }) as VulnTypeConfig;
 
 // Pure function to create validation rule

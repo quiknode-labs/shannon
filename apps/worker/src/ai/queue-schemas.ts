@@ -139,6 +139,27 @@ const UnboundedConsumptionVulnerability = baseVulnerability.extend({
   impact: z.string().optional(),
 });
 
+const CryptoFailuresVulnerability = baseVulnerability.extend({
+  vulnerable_component: z.string().optional(),
+  attack_vector: z.string().optional(),
+  evidence: z.string().optional(),
+  impact: z.string().optional(),
+});
+
+const SecurityMisconfigurationVulnerability = baseVulnerability.extend({
+  vulnerable_component: z.string().optional(),
+  attack_vector: z.string().optional(),
+  evidence: z.string().optional(),
+  impact: z.string().optional(),
+});
+
+const InsecureDeserializationVulnerability = baseVulnerability.extend({
+  vulnerable_component: z.string().optional(),
+  attack_vector: z.string().optional(),
+  evidence: z.string().optional(),
+  impact: z.string().optional(),
+});
+
 // === Inferred Entry Types (consumed by renderer) ===
 
 export type InjectionFinding = z.infer<typeof InjectionVulnerability>;
@@ -153,6 +174,9 @@ export type OutputHandlingFinding = z.infer<typeof OutputHandlingVulnerability>;
 export type PromptLeakageFinding = z.infer<typeof PromptLeakageVulnerability>;
 export type VectorWeaknessesFinding = z.infer<typeof VectorWeaknessesVulnerability>;
 export type UnboundedConsumptionFinding = z.infer<typeof UnboundedConsumptionVulnerability>;
+export type CryptoFailuresFinding = z.infer<typeof CryptoFailuresVulnerability>;
+export type SecurityMisconfigurationFinding = z.infer<typeof SecurityMisconfigurationVulnerability>;
+export type InsecureDeserializationFinding = z.infer<typeof InsecureDeserializationVulnerability>;
 
 // === Convert to JSON Schema for SDK ===
 
@@ -330,6 +354,42 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
         ),
       }),
     ),
+    'crypto_failures-vuln': toOutputFormat(
+      z.object({
+        vulnerabilities: z.array(
+          base.extend({
+            vulnerable_component: z.string().optional(),
+            attack_vector: z.string().optional(),
+            evidence: z.string().optional(),
+            impact: z.string().optional(),
+          }),
+        ),
+      }),
+    ),
+    'security_misconfiguration-vuln': toOutputFormat(
+      z.object({
+        vulnerabilities: z.array(
+          base.extend({
+            vulnerable_component: z.string().optional(),
+            attack_vector: z.string().optional(),
+            evidence: z.string().optional(),
+            impact: z.string().optional(),
+          }),
+        ),
+      }),
+    ),
+    'insecure_deserialization-vuln': toOutputFormat(
+      z.object({
+        vulnerabilities: z.array(
+          base.extend({
+            vulnerable_component: z.string().optional(),
+            attack_vector: z.string().optional(),
+            evidence: z.string().optional(),
+            impact: z.string().optional(),
+          }),
+        ),
+      }),
+    ),
   };
 }
 
@@ -349,6 +409,9 @@ const VULN_AGENT_QUEUE_FILENAMES: Partial<Record<AgentName, string>> = {
   'prompt_leakage-vuln': 'prompt_leakage_exploitation_queue.json',
   'vector_weaknesses-vuln': 'vector_weaknesses_exploitation_queue.json',
   'unbounded_consumption-vuln': 'unbounded_consumption_exploitation_queue.json',
+  'crypto_failures-vuln': 'crypto_failures_exploitation_queue.json',
+  'security_misconfiguration-vuln': 'security_misconfiguration_exploitation_queue.json',
+  'insecure_deserialization-vuln': 'insecure_deserialization_exploitation_queue.json',
 };
 
 /** Returns the structured output format for a vuln agent, or undefined for non-vuln agents. */

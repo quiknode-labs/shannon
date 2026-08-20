@@ -111,6 +111,27 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
     promptTemplate: 'vuln-unbounded_consumption',
     deliverableFilename: 'unbounded_consumption_analysis_deliverable.md',
   },
+  'crypto_failures-vuln': {
+    name: 'crypto_failures-vuln',
+    displayName: 'Crypto failures vuln agent',
+    prerequisites: ['recon'],
+    promptTemplate: 'vuln-crypto_failures',
+    deliverableFilename: 'crypto_failures_analysis_deliverable.md',
+  },
+  'security_misconfiguration-vuln': {
+    name: 'security_misconfiguration-vuln',
+    displayName: 'Security misconfiguration vuln agent',
+    prerequisites: ['recon'],
+    promptTemplate: 'vuln-security_misconfiguration',
+    deliverableFilename: 'security_misconfiguration_analysis_deliverable.md',
+  },
+  'insecure_deserialization-vuln': {
+    name: 'insecure_deserialization-vuln',
+    displayName: 'Insecure deserialization vuln agent',
+    prerequisites: ['recon'],
+    promptTemplate: 'vuln-insecure_deserialization',
+    deliverableFilename: 'insecure_deserialization_analysis_deliverable.md',
+  },
   'injection-exploit': {
     name: 'injection-exploit',
     displayName: 'Injection exploit agent',
@@ -195,6 +216,27 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
     promptTemplate: 'exploit-unbounded_consumption',
     deliverableFilename: 'unbounded_consumption_exploitation_evidence.md',
   },
+  'crypto_failures-exploit': {
+    name: 'crypto_failures-exploit',
+    displayName: 'Crypto failures exploit agent',
+    prerequisites: ['crypto_failures-vuln'],
+    promptTemplate: 'exploit-crypto_failures',
+    deliverableFilename: 'crypto_failures_exploitation_evidence.md',
+  },
+  'security_misconfiguration-exploit': {
+    name: 'security_misconfiguration-exploit',
+    displayName: 'Security misconfiguration exploit agent',
+    prerequisites: ['security_misconfiguration-vuln'],
+    promptTemplate: 'exploit-security_misconfiguration',
+    deliverableFilename: 'security_misconfiguration_exploitation_evidence.md',
+  },
+  'insecure_deserialization-exploit': {
+    name: 'insecure_deserialization-exploit',
+    displayName: 'Insecure deserialization exploit agent',
+    prerequisites: ['insecure_deserialization-vuln'],
+    promptTemplate: 'exploit-insecure_deserialization',
+    deliverableFilename: 'insecure_deserialization_exploitation_evidence.md',
+  },
   report: {
     name: 'report',
     displayName: 'Report agent',
@@ -211,6 +253,9 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
       'prompt_leakage-exploit',
       'vector_weaknesses-exploit',
       'unbounded_consumption-exploit',
+      'crypto_failures-exploit',
+      'security_misconfiguration-exploit',
+      'insecure_deserialization-exploit',
     ],
     promptTemplate: 'report-executive',
     deliverableFilename: 'comprehensive_security_assessment_report.md',
@@ -301,6 +346,27 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
     promptTemplate: 'vuln-unbounded_consumption-rescan',
     deliverableFilename: 'unbounded_consumption_analysis_deliverable.md',
   },
+  'crypto_failures-vuln-rescan': {
+    name: 'crypto_failures-vuln-rescan',
+    displayName: 'Crypto failures vuln rescan agent',
+    prerequisites: [],
+    promptTemplate: 'vuln-crypto_failures-rescan',
+    deliverableFilename: 'crypto_failures_analysis_deliverable.md',
+  },
+  'security_misconfiguration-vuln-rescan': {
+    name: 'security_misconfiguration-vuln-rescan',
+    displayName: 'Security misconfiguration vuln rescan agent',
+    prerequisites: [],
+    promptTemplate: 'vuln-security_misconfiguration-rescan',
+    deliverableFilename: 'security_misconfiguration_analysis_deliverable.md',
+  },
+  'insecure_deserialization-vuln-rescan': {
+    name: 'insecure_deserialization-vuln-rescan',
+    displayName: 'Insecure deserialization vuln rescan agent',
+    prerequisites: [],
+    promptTemplate: 'vuln-insecure_deserialization-rescan',
+    deliverableFilename: 'insecure_deserialization_analysis_deliverable.md',
+  },
   'injection-exploit-rescan': {
     name: 'injection-exploit-rescan',
     displayName: 'Injection exploit rescan agent',
@@ -385,6 +451,27 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
     promptTemplate: 'exploit-unbounded_consumption-rescan',
     deliverableFilename: 'unbounded_consumption_exploitation_evidence.md',
   },
+  'crypto_failures-exploit-rescan': {
+    name: 'crypto_failures-exploit-rescan',
+    displayName: 'Crypto failures exploit rescan agent',
+    prerequisites: ['crypto_failures-vuln-rescan'],
+    promptTemplate: 'exploit-crypto_failures-rescan',
+    deliverableFilename: 'crypto_failures_exploitation_evidence.md',
+  },
+  'security_misconfiguration-exploit-rescan': {
+    name: 'security_misconfiguration-exploit-rescan',
+    displayName: 'Security misconfiguration exploit rescan agent',
+    prerequisites: ['security_misconfiguration-vuln-rescan'],
+    promptTemplate: 'exploit-security_misconfiguration-rescan',
+    deliverableFilename: 'security_misconfiguration_exploitation_evidence.md',
+  },
+  'insecure_deserialization-exploit-rescan': {
+    name: 'insecure_deserialization-exploit-rescan',
+    displayName: 'Insecure deserialization exploit rescan agent',
+    prerequisites: ['insecure_deserialization-vuln-rescan'],
+    promptTemplate: 'exploit-insecure_deserialization-rescan',
+    deliverableFilename: 'insecure_deserialization_exploitation_evidence.md',
+  },
   'report-rescan': {
     name: 'report-rescan',
     displayName: 'Rescan report agent',
@@ -401,6 +488,9 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
       'prompt_leakage-exploit-rescan',
       'vector_weaknesses-exploit-rescan',
       'unbounded_consumption-exploit-rescan',
+      'crypto_failures-exploit-rescan',
+      'security_misconfiguration-exploit-rescan',
+      'insecure_deserialization-exploit-rescan',
     ],
     promptTemplate: 'report-rescan',
     deliverableFilename: 'rescan_verification_report.md',
@@ -426,6 +516,9 @@ export const AGENT_PHASE_MAP: Readonly<Record<AgentName, PhaseName>> = Object.fr
   'prompt_leakage-vuln': 'vulnerability-analysis',
   'vector_weaknesses-vuln': 'vulnerability-analysis',
   'unbounded_consumption-vuln': 'vulnerability-analysis',
+  'crypto_failures-vuln': 'vulnerability-analysis',
+  'security_misconfiguration-vuln': 'vulnerability-analysis',
+  'insecure_deserialization-vuln': 'vulnerability-analysis',
   'injection-exploit': 'exploitation',
   'xss-exploit': 'exploitation',
   'auth-exploit': 'exploitation',
@@ -438,6 +531,9 @@ export const AGENT_PHASE_MAP: Readonly<Record<AgentName, PhaseName>> = Object.fr
   'prompt_leakage-exploit': 'exploitation',
   'vector_weaknesses-exploit': 'exploitation',
   'unbounded_consumption-exploit': 'exploitation',
+  'crypto_failures-exploit': 'exploitation',
+  'security_misconfiguration-exploit': 'exploitation',
+  'insecure_deserialization-exploit': 'exploitation',
   report: 'reporting',
   // Rescan agents
   'injection-vuln-rescan': 'vulnerability-analysis',
@@ -452,6 +548,9 @@ export const AGENT_PHASE_MAP: Readonly<Record<AgentName, PhaseName>> = Object.fr
   'prompt_leakage-vuln-rescan': 'vulnerability-analysis',
   'vector_weaknesses-vuln-rescan': 'vulnerability-analysis',
   'unbounded_consumption-vuln-rescan': 'vulnerability-analysis',
+  'crypto_failures-vuln-rescan': 'vulnerability-analysis',
+  'security_misconfiguration-vuln-rescan': 'vulnerability-analysis',
+  'insecure_deserialization-vuln-rescan': 'vulnerability-analysis',
   'injection-exploit-rescan': 'exploitation',
   'xss-exploit-rescan': 'exploitation',
   'auth-exploit-rescan': 'exploitation',
@@ -464,6 +563,9 @@ export const AGENT_PHASE_MAP: Readonly<Record<AgentName, PhaseName>> = Object.fr
   'prompt_leakage-exploit-rescan': 'exploitation',
   'vector_weaknesses-exploit-rescan': 'exploitation',
   'unbounded_consumption-exploit-rescan': 'exploitation',
+  'crypto_failures-exploit-rescan': 'exploitation',
+  'security_misconfiguration-exploit-rescan': 'exploitation',
+  'insecure_deserialization-exploit-rescan': 'exploitation',
   'report-rescan': 'reporting',
 });
 
@@ -501,7 +603,7 @@ export const PLAYWRIGHT_SESSION_MAPPING: Record<string, PlaywrightSession> = Obj
   // Phase 2: Reconnaissance
   recon: 'agent2',
 
-  // Phase 3: Vulnerability Analysis (up to 12 parallel agents)
+  // Phase 3: Vulnerability Analysis (up to 15 parallel agents)
   'vuln-injection': 'agent1',
   'vuln-xss': 'agent2',
   'vuln-auth': 'agent3',
@@ -514,8 +616,11 @@ export const PLAYWRIGHT_SESSION_MAPPING: Record<string, PlaywrightSession> = Obj
   'vuln-prompt_leakage': 'agent10',
   'vuln-vector_weaknesses': 'agent11',
   'vuln-unbounded_consumption': 'agent12',
+  'vuln-crypto_failures': 'agent13',
+  'vuln-security_misconfiguration': 'agent14',
+  'vuln-insecure_deserialization': 'agent15',
 
-  // Phase 4: Exploitation (up to 12 parallel agents - same as vuln counterparts)
+  // Phase 4: Exploitation (up to 15 parallel agents - same as vuln counterparts)
   'exploit-injection': 'agent1',
   'exploit-xss': 'agent2',
   'exploit-auth': 'agent3',
@@ -528,6 +633,9 @@ export const PLAYWRIGHT_SESSION_MAPPING: Record<string, PlaywrightSession> = Obj
   'exploit-prompt_leakage': 'agent10',
   'exploit-vector_weaknesses': 'agent11',
   'exploit-unbounded_consumption': 'agent12',
+  'exploit-crypto_failures': 'agent13',
+  'exploit-security_misconfiguration': 'agent14',
+  'exploit-insecure_deserialization': 'agent15',
 
   // Phase 5: Reporting
   'report-executive': 'agent3',
@@ -545,6 +653,9 @@ export const PLAYWRIGHT_SESSION_MAPPING: Record<string, PlaywrightSession> = Obj
   'vuln-prompt_leakage-rescan': 'agent10',
   'vuln-vector_weaknesses-rescan': 'agent11',
   'vuln-unbounded_consumption-rescan': 'agent12',
+  'vuln-crypto_failures-rescan': 'agent13',
+  'vuln-security_misconfiguration-rescan': 'agent14',
+  'vuln-insecure_deserialization-rescan': 'agent15',
 
   // Rescan: exploit verification (parallel, same session slots as normal exploit)
   'exploit-injection-rescan': 'agent1',
@@ -559,6 +670,9 @@ export const PLAYWRIGHT_SESSION_MAPPING: Record<string, PlaywrightSession> = Obj
   'exploit-prompt_leakage-rescan': 'agent10',
   'exploit-vector_weaknesses-rescan': 'agent11',
   'exploit-unbounded_consumption-rescan': 'agent12',
+  'exploit-crypto_failures-rescan': 'agent13',
+  'exploit-security_misconfiguration-rescan': 'agent14',
+  'exploit-insecure_deserialization-rescan': 'agent15',
 
   // Rescan: verification report
   'report-rescan': 'agent3',
@@ -591,6 +705,9 @@ export const AGENT_VALIDATORS: Record<AgentName, AgentValidator> = Object.freeze
   'prompt_leakage-vuln': createVulnValidator('prompt_leakage'),
   'vector_weaknesses-vuln': createVulnValidator('vector_weaknesses'),
   'unbounded_consumption-vuln': createVulnValidator('unbounded_consumption'),
+  'crypto_failures-vuln': createVulnValidator('crypto_failures'),
+  'security_misconfiguration-vuln': createVulnValidator('security_misconfiguration'),
+  'insecure_deserialization-vuln': createVulnValidator('insecure_deserialization'),
 
   // Exploitation agents
   'injection-exploit': createExploitValidator('injection'),
@@ -605,6 +722,9 @@ export const AGENT_VALIDATORS: Record<AgentName, AgentValidator> = Object.freeze
   'prompt_leakage-exploit': createExploitValidator('prompt_leakage'),
   'vector_weaknesses-exploit': createExploitValidator('vector_weaknesses'),
   'unbounded_consumption-exploit': createExploitValidator('unbounded_consumption'),
+  'crypto_failures-exploit': createExploitValidator('crypto_failures'),
+  'security_misconfiguration-exploit': createExploitValidator('security_misconfiguration'),
+  'insecure_deserialization-exploit': createExploitValidator('insecure_deserialization'),
 
   // Executive report agent
   report: async (sourceDir: string, logger: ActivityLogger): Promise<boolean> => {
@@ -632,6 +752,9 @@ export const AGENT_VALIDATORS: Record<AgentName, AgentValidator> = Object.freeze
   'prompt_leakage-vuln-rescan': createVulnValidator('prompt_leakage'),
   'vector_weaknesses-vuln-rescan': createVulnValidator('vector_weaknesses'),
   'unbounded_consumption-vuln-rescan': createVulnValidator('unbounded_consumption'),
+  'crypto_failures-vuln-rescan': createVulnValidator('crypto_failures'),
+  'security_misconfiguration-vuln-rescan': createVulnValidator('security_misconfiguration'),
+  'insecure_deserialization-vuln-rescan': createVulnValidator('insecure_deserialization'),
 
   // Rescan: exploit verification agents
   'injection-exploit-rescan': createExploitValidator('injection'),
@@ -646,6 +769,9 @@ export const AGENT_VALIDATORS: Record<AgentName, AgentValidator> = Object.freeze
   'prompt_leakage-exploit-rescan': createExploitValidator('prompt_leakage'),
   'vector_weaknesses-exploit-rescan': createExploitValidator('vector_weaknesses'),
   'unbounded_consumption-exploit-rescan': createExploitValidator('unbounded_consumption'),
+  'crypto_failures-exploit-rescan': createExploitValidator('crypto_failures'),
+  'security_misconfiguration-exploit-rescan': createExploitValidator('security_misconfiguration'),
+  'insecure_deserialization-exploit-rescan': createExploitValidator('insecure_deserialization'),
 
   // Rescan: verification report agent
   'report-rescan': async (sourceDir: string, logger: ActivityLogger): Promise<boolean> => {

@@ -33,7 +33,10 @@ export type VulnClass =
   | 'output_handling'
   | 'prompt_leakage'
   | 'vector_weaknesses'
-  | 'unbounded_consumption';
+  | 'unbounded_consumption'
+  | 'crypto_failures'
+  | 'security_misconfiguration'
+  | 'insecure_deserialization';
 
 export const ALL_VULN_CLASSES: readonly VulnClass[] = [
   'injection',
@@ -48,6 +51,9 @@ export const ALL_VULN_CLASSES: readonly VulnClass[] = [
   'prompt_leakage',
   'vector_weaknesses',
   'unbounded_consumption',
+  'crypto_failures',
+  'security_misconfiguration',
+  'insecure_deserialization',
 ];
 
 export type Severity = 'low' | 'medium' | 'high' | 'critical';

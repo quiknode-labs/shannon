@@ -66,6 +66,21 @@ export async function assembleFinalReport(
       paths: ['unbounded_consumption_exploitation_evidence.md', 'unbounded_consumption_findings.md'],
       required: false,
     },
+    {
+      name: 'Cryptographic Failures',
+      paths: ['crypto_failures_exploitation_evidence.md', 'crypto_failures_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Security Misconfiguration',
+      paths: ['security_misconfiguration_exploitation_evidence.md', 'security_misconfiguration_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Insecure Deserialization',
+      paths: ['insecure_deserialization_exploitation_evidence.md', 'insecure_deserialization_findings.md'],
+      required: false,
+    },
   ];
 
   const dir = deliverablesDir(sourceDir, deliverablesSubdir);

@@ -30,6 +30,9 @@ export enum DeliverableType {
   PROMPT_LEAKAGE_ANALYSIS = 'PROMPT_LEAKAGE_ANALYSIS',
   VECTOR_WEAKNESSES_ANALYSIS = 'VECTOR_WEAKNESSES_ANALYSIS',
   UNBOUNDED_CONSUMPTION_ANALYSIS = 'UNBOUNDED_CONSUMPTION_ANALYSIS',
+  CRYPTO_FAILURES_ANALYSIS = 'CRYPTO_FAILURES_ANALYSIS',
+  SECURITY_MISCONFIGURATION_ANALYSIS = 'SECURITY_MISCONFIGURATION_ANALYSIS',
+  INSECURE_DESERIALIZATION_ANALYSIS = 'INSECURE_DESERIALIZATION_ANALYSIS',
 
   // Exploitation agents
   INJECTION_EVIDENCE = 'INJECTION_EVIDENCE',
@@ -44,6 +47,9 @@ export enum DeliverableType {
   PROMPT_LEAKAGE_EVIDENCE = 'PROMPT_LEAKAGE_EVIDENCE',
   VECTOR_WEAKNESSES_EVIDENCE = 'VECTOR_WEAKNESSES_EVIDENCE',
   UNBOUNDED_CONSUMPTION_EVIDENCE = 'UNBOUNDED_CONSUMPTION_EVIDENCE',
+  CRYPTO_FAILURES_EVIDENCE = 'CRYPTO_FAILURES_EVIDENCE',
+  SECURITY_MISCONFIGURATION_EVIDENCE = 'SECURITY_MISCONFIGURATION_EVIDENCE',
+  INSECURE_DESERIALIZATION_EVIDENCE = 'INSECURE_DESERIALIZATION_EVIDENCE',
 }
 
 /**
@@ -64,6 +70,9 @@ export const DELIVERABLE_FILENAMES: Record<DeliverableType, string> = {
   [DeliverableType.PROMPT_LEAKAGE_ANALYSIS]: 'prompt_leakage_analysis_deliverable.md',
   [DeliverableType.VECTOR_WEAKNESSES_ANALYSIS]: 'vector_weaknesses_analysis_deliverable.md',
   [DeliverableType.UNBOUNDED_CONSUMPTION_ANALYSIS]: 'unbounded_consumption_analysis_deliverable.md',
+  [DeliverableType.CRYPTO_FAILURES_ANALYSIS]: 'crypto_failures_analysis_deliverable.md',
+  [DeliverableType.SECURITY_MISCONFIGURATION_ANALYSIS]: 'security_misconfiguration_analysis_deliverable.md',
+  [DeliverableType.INSECURE_DESERIALIZATION_ANALYSIS]: 'insecure_deserialization_analysis_deliverable.md',
   [DeliverableType.INJECTION_EVIDENCE]: 'injection_exploitation_evidence.md',
   [DeliverableType.XSS_EVIDENCE]: 'xss_exploitation_evidence.md',
   [DeliverableType.AUTH_EVIDENCE]: 'auth_exploitation_evidence.md',
@@ -76,4 +85,7 @@ export const DELIVERABLE_FILENAMES: Record<DeliverableType, string> = {
   [DeliverableType.PROMPT_LEAKAGE_EVIDENCE]: 'prompt_leakage_exploitation_evidence.md',
   [DeliverableType.VECTOR_WEAKNESSES_EVIDENCE]: 'vector_weaknesses_exploitation_evidence.md',
   [DeliverableType.UNBOUNDED_CONSUMPTION_EVIDENCE]: 'unbounded_consumption_exploitation_evidence.md',
+  [DeliverableType.CRYPTO_FAILURES_EVIDENCE]: 'crypto_failures_exploitation_evidence.md',
+  [DeliverableType.SECURITY_MISCONFIGURATION_EVIDENCE]: 'security_misconfiguration_exploitation_evidence.md',
+  [DeliverableType.INSECURE_DESERIALIZATION_EVIDENCE]: 'insecure_deserialization_exploitation_evidence.md',
 };

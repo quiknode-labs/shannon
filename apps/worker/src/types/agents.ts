@@ -27,6 +27,9 @@ export const ALL_AGENTS = [
   'prompt_leakage-vuln',
   'vector_weaknesses-vuln',
   'unbounded_consumption-vuln',
+  'crypto_failures-vuln',
+  'security_misconfiguration-vuln',
+  'insecure_deserialization-vuln',
   'injection-exploit',
   'xss-exploit',
   'auth-exploit',
@@ -39,6 +42,9 @@ export const ALL_AGENTS = [
   'prompt_leakage-exploit',
   'vector_weaknesses-exploit',
   'unbounded_consumption-exploit',
+  'crypto_failures-exploit',
+  'security_misconfiguration-exploit',
+  'insecure_deserialization-exploit',
   'report',
 ] as const;
 
@@ -56,6 +62,9 @@ export const RESCAN_AGENTS = [
   'prompt_leakage-vuln-rescan',
   'vector_weaknesses-vuln-rescan',
   'unbounded_consumption-vuln-rescan',
+  'crypto_failures-vuln-rescan',
+  'security_misconfiguration-vuln-rescan',
+  'insecure_deserialization-vuln-rescan',
   'injection-exploit-rescan',
   'xss-exploit-rescan',
   'auth-exploit-rescan',
@@ -68,6 +77,9 @@ export const RESCAN_AGENTS = [
   'prompt_leakage-exploit-rescan',
   'vector_weaknesses-exploit-rescan',
   'unbounded_consumption-exploit-rescan',
+  'crypto_failures-exploit-rescan',
+  'security_misconfiguration-exploit-rescan',
+  'insecure_deserialization-exploit-rescan',
   'report-rescan',
 ] as const;
 
@@ -91,7 +103,10 @@ export type PlaywrightSession =
   | 'agent9'
   | 'agent10'
   | 'agent11'
-  | 'agent12';
+  | 'agent12'
+  | 'agent13'
+  | 'agent14'
+  | 'agent15';
 
 import type { ActivityLogger } from './activity-logger.js';
 
@@ -123,7 +138,10 @@ export type VulnType =
   | 'output_handling'
   | 'prompt_leakage'
   | 'vector_weaknesses'
-  | 'unbounded_consumption';
+  | 'unbounded_consumption'
+  | 'crypto_failures'
+  | 'security_misconfiguration'
+  | 'insecure_deserialization';
 
 /**
  * Decision returned by queue validation for exploitation phase.

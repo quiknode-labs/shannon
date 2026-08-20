@@ -113,8 +113,8 @@
         },
         "max_concurrent_pipelines": {
           "type": "string",
-          "pattern": "^([1-9]|1[0-2])$",
-          "description": "Max concurrent vulnerability pipelines (1-12, default: 5)"
+          "pattern": "^([1-9]|1[0-5])$",
+          "description": "Max concurrent vulnerability pipelines (1-15, default: 5)"
         }
       },
       "additionalProperties": false
@@ -144,7 +144,7 @@
     },
     "vuln_classes": {
       "type": "array",
-      "description": "Vulnerability classes to test. When omitted, all twelve classes run. When set, only listed classes run; their vuln+exploit agents and report sections are included.",
+      "description": "Vulnerability classes to test. When omitted, all fifteen classes run. When set, only listed classes run; their vuln+exploit agents and report sections are included.",
       "items": {
         "type": "string",
         "enum": [
@@ -159,11 +159,14 @@
           "output_handling",
           "prompt_leakage",
           "vector_weaknesses",
-          "unbounded_consumption"
+          "unbounded_consumption",
+          "crypto_failures",
+          "security_misconfiguration",
+          "insecure_deserialization"
         ]
       },
       "minItems": 1,
-      "maxItems": 12,
+      "maxItems": 15,
       "uniqueItems": true
     },
     "exploit": {
