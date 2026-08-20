@@ -23,6 +23,10 @@ export const ALL_AGENTS = [
   'prompt_injection-vuln',
   'plugin_design-vuln',
   'info_disclosure-vuln',
+  'output_handling-vuln',
+  'prompt_leakage-vuln',
+  'vector_weaknesses-vuln',
+  'unbounded_consumption-vuln',
   'injection-exploit',
   'xss-exploit',
   'auth-exploit',
@@ -31,6 +35,10 @@ export const ALL_AGENTS = [
   'prompt_injection-exploit',
   'plugin_design-exploit',
   'info_disclosure-exploit',
+  'output_handling-exploit',
+  'prompt_leakage-exploit',
+  'vector_weaknesses-exploit',
+  'unbounded_consumption-exploit',
   'report',
 ] as const;
 
@@ -44,6 +52,10 @@ export const RESCAN_AGENTS = [
   'prompt_injection-vuln-rescan',
   'plugin_design-vuln-rescan',
   'info_disclosure-vuln-rescan',
+  'output_handling-vuln-rescan',
+  'prompt_leakage-vuln-rescan',
+  'vector_weaknesses-vuln-rescan',
+  'unbounded_consumption-vuln-rescan',
   'injection-exploit-rescan',
   'xss-exploit-rescan',
   'auth-exploit-rescan',
@@ -52,6 +64,10 @@ export const RESCAN_AGENTS = [
   'prompt_injection-exploit-rescan',
   'plugin_design-exploit-rescan',
   'info_disclosure-exploit-rescan',
+  'output_handling-exploit-rescan',
+  'prompt_leakage-exploit-rescan',
+  'vector_weaknesses-exploit-rescan',
+  'unbounded_consumption-exploit-rescan',
   'report-rescan',
 ] as const;
 
@@ -63,7 +79,19 @@ export type RescanAgentName = (typeof RESCAN_AGENTS)[number];
  */
 export type AgentName = (typeof ALL_AGENTS)[number] | RescanAgentName;
 
-export type PlaywrightSession = 'agent1' | 'agent2' | 'agent3' | 'agent4' | 'agent5' | 'agent6' | 'agent7' | 'agent8';
+export type PlaywrightSession =
+  | 'agent1'
+  | 'agent2'
+  | 'agent3'
+  | 'agent4'
+  | 'agent5'
+  | 'agent6'
+  | 'agent7'
+  | 'agent8'
+  | 'agent9'
+  | 'agent10'
+  | 'agent11'
+  | 'agent12';
 
 import type { ActivityLogger } from './activity-logger.js';
 
@@ -91,7 +119,11 @@ export type VulnType =
   | 'authz'
   | 'prompt_injection'
   | 'plugin_design'
-  | 'info_disclosure';
+  | 'info_disclosure'
+  | 'output_handling'
+  | 'prompt_leakage'
+  | 'vector_weaknesses'
+  | 'unbounded_consumption';
 
 /**
  * Decision returned by queue validation for exploitation phase.

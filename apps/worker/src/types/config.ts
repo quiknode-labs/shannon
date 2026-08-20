@@ -29,7 +29,11 @@ export type VulnClass =
   | 'ssrf'
   | 'prompt_injection'
   | 'plugin_design'
-  | 'info_disclosure';
+  | 'info_disclosure'
+  | 'output_handling'
+  | 'prompt_leakage'
+  | 'vector_weaknesses'
+  | 'unbounded_consumption';
 
 export const ALL_VULN_CLASSES: readonly VulnClass[] = [
   'injection',
@@ -40,6 +44,10 @@ export const ALL_VULN_CLASSES: readonly VulnClass[] = [
   'prompt_injection',
   'plugin_design',
   'info_disclosure',
+  'output_handling',
+  'prompt_leakage',
+  'vector_weaknesses',
+  'unbounded_consumption',
 ];
 
 export type Severity = 'low' | 'medium' | 'high' | 'critical';

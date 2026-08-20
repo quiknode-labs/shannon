@@ -83,6 +83,34 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
     promptTemplate: 'vuln-info_disclosure',
     deliverableFilename: 'info_disclosure_analysis_deliverable.md',
   },
+  'output_handling-vuln': {
+    name: 'output_handling-vuln',
+    displayName: 'Output handling vuln agent',
+    prerequisites: ['recon'],
+    promptTemplate: 'vuln-output_handling',
+    deliverableFilename: 'output_handling_analysis_deliverable.md',
+  },
+  'prompt_leakage-vuln': {
+    name: 'prompt_leakage-vuln',
+    displayName: 'Prompt leakage vuln agent',
+    prerequisites: ['recon'],
+    promptTemplate: 'vuln-prompt_leakage',
+    deliverableFilename: 'prompt_leakage_analysis_deliverable.md',
+  },
+  'vector_weaknesses-vuln': {
+    name: 'vector_weaknesses-vuln',
+    displayName: 'Vector weaknesses vuln agent',
+    prerequisites: ['recon'],
+    promptTemplate: 'vuln-vector_weaknesses',
+    deliverableFilename: 'vector_weaknesses_analysis_deliverable.md',
+  },
+  'unbounded_consumption-vuln': {
+    name: 'unbounded_consumption-vuln',
+    displayName: 'Unbounded consumption vuln agent',
+    prerequisites: ['recon'],
+    promptTemplate: 'vuln-unbounded_consumption',
+    deliverableFilename: 'unbounded_consumption_analysis_deliverable.md',
+  },
   'injection-exploit': {
     name: 'injection-exploit',
     displayName: 'Injection exploit agent',
@@ -139,6 +167,34 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
     promptTemplate: 'exploit-info_disclosure',
     deliverableFilename: 'info_disclosure_exploitation_evidence.md',
   },
+  'output_handling-exploit': {
+    name: 'output_handling-exploit',
+    displayName: 'Output handling exploit agent',
+    prerequisites: ['output_handling-vuln'],
+    promptTemplate: 'exploit-output_handling',
+    deliverableFilename: 'output_handling_exploitation_evidence.md',
+  },
+  'prompt_leakage-exploit': {
+    name: 'prompt_leakage-exploit',
+    displayName: 'Prompt leakage exploit agent',
+    prerequisites: ['prompt_leakage-vuln'],
+    promptTemplate: 'exploit-prompt_leakage',
+    deliverableFilename: 'prompt_leakage_exploitation_evidence.md',
+  },
+  'vector_weaknesses-exploit': {
+    name: 'vector_weaknesses-exploit',
+    displayName: 'Vector weaknesses exploit agent',
+    prerequisites: ['vector_weaknesses-vuln'],
+    promptTemplate: 'exploit-vector_weaknesses',
+    deliverableFilename: 'vector_weaknesses_exploitation_evidence.md',
+  },
+  'unbounded_consumption-exploit': {
+    name: 'unbounded_consumption-exploit',
+    displayName: 'Unbounded consumption exploit agent',
+    prerequisites: ['unbounded_consumption-vuln'],
+    promptTemplate: 'exploit-unbounded_consumption',
+    deliverableFilename: 'unbounded_consumption_exploitation_evidence.md',
+  },
   report: {
     name: 'report',
     displayName: 'Report agent',
@@ -151,6 +207,10 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
       'prompt_injection-exploit',
       'plugin_design-exploit',
       'info_disclosure-exploit',
+      'output_handling-exploit',
+      'prompt_leakage-exploit',
+      'vector_weaknesses-exploit',
+      'unbounded_consumption-exploit',
     ],
     promptTemplate: 'report-executive',
     deliverableFilename: 'comprehensive_security_assessment_report.md',
@@ -213,6 +273,34 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
     promptTemplate: 'vuln-info_disclosure-rescan',
     deliverableFilename: 'info_disclosure_analysis_deliverable.md',
   },
+  'output_handling-vuln-rescan': {
+    name: 'output_handling-vuln-rescan',
+    displayName: 'Output handling vuln rescan agent',
+    prerequisites: [],
+    promptTemplate: 'vuln-output_handling-rescan',
+    deliverableFilename: 'output_handling_analysis_deliverable.md',
+  },
+  'prompt_leakage-vuln-rescan': {
+    name: 'prompt_leakage-vuln-rescan',
+    displayName: 'Prompt leakage vuln rescan agent',
+    prerequisites: [],
+    promptTemplate: 'vuln-prompt_leakage-rescan',
+    deliverableFilename: 'prompt_leakage_analysis_deliverable.md',
+  },
+  'vector_weaknesses-vuln-rescan': {
+    name: 'vector_weaknesses-vuln-rescan',
+    displayName: 'Vector weaknesses vuln rescan agent',
+    prerequisites: [],
+    promptTemplate: 'vuln-vector_weaknesses-rescan',
+    deliverableFilename: 'vector_weaknesses_analysis_deliverable.md',
+  },
+  'unbounded_consumption-vuln-rescan': {
+    name: 'unbounded_consumption-vuln-rescan',
+    displayName: 'Unbounded consumption vuln rescan agent',
+    prerequisites: [],
+    promptTemplate: 'vuln-unbounded_consumption-rescan',
+    deliverableFilename: 'unbounded_consumption_analysis_deliverable.md',
+  },
   'injection-exploit-rescan': {
     name: 'injection-exploit-rescan',
     displayName: 'Injection exploit rescan agent',
@@ -269,6 +357,34 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
     promptTemplate: 'exploit-info_disclosure-rescan',
     deliverableFilename: 'info_disclosure_exploitation_evidence.md',
   },
+  'output_handling-exploit-rescan': {
+    name: 'output_handling-exploit-rescan',
+    displayName: 'Output handling exploit rescan agent',
+    prerequisites: ['output_handling-vuln-rescan'],
+    promptTemplate: 'exploit-output_handling-rescan',
+    deliverableFilename: 'output_handling_exploitation_evidence.md',
+  },
+  'prompt_leakage-exploit-rescan': {
+    name: 'prompt_leakage-exploit-rescan',
+    displayName: 'Prompt leakage exploit rescan agent',
+    prerequisites: ['prompt_leakage-vuln-rescan'],
+    promptTemplate: 'exploit-prompt_leakage-rescan',
+    deliverableFilename: 'prompt_leakage_exploitation_evidence.md',
+  },
+  'vector_weaknesses-exploit-rescan': {
+    name: 'vector_weaknesses-exploit-rescan',
+    displayName: 'Vector weaknesses exploit rescan agent',
+    prerequisites: ['vector_weaknesses-vuln-rescan'],
+    promptTemplate: 'exploit-vector_weaknesses-rescan',
+    deliverableFilename: 'vector_weaknesses_exploitation_evidence.md',
+  },
+  'unbounded_consumption-exploit-rescan': {
+    name: 'unbounded_consumption-exploit-rescan',
+    displayName: 'Unbounded consumption exploit rescan agent',
+    prerequisites: ['unbounded_consumption-vuln-rescan'],
+    promptTemplate: 'exploit-unbounded_consumption-rescan',
+    deliverableFilename: 'unbounded_consumption_exploitation_evidence.md',
+  },
   'report-rescan': {
     name: 'report-rescan',
     displayName: 'Rescan report agent',
@@ -281,6 +397,10 @@ export const AGENTS: Readonly<Record<AgentName, AgentDefinition>> = Object.freez
       'prompt_injection-exploit-rescan',
       'plugin_design-exploit-rescan',
       'info_disclosure-exploit-rescan',
+      'output_handling-exploit-rescan',
+      'prompt_leakage-exploit-rescan',
+      'vector_weaknesses-exploit-rescan',
+      'unbounded_consumption-exploit-rescan',
     ],
     promptTemplate: 'report-rescan',
     deliverableFilename: 'rescan_verification_report.md',
@@ -302,6 +422,10 @@ export const AGENT_PHASE_MAP: Readonly<Record<AgentName, PhaseName>> = Object.fr
   'prompt_injection-vuln': 'vulnerability-analysis',
   'plugin_design-vuln': 'vulnerability-analysis',
   'info_disclosure-vuln': 'vulnerability-analysis',
+  'output_handling-vuln': 'vulnerability-analysis',
+  'prompt_leakage-vuln': 'vulnerability-analysis',
+  'vector_weaknesses-vuln': 'vulnerability-analysis',
+  'unbounded_consumption-vuln': 'vulnerability-analysis',
   'injection-exploit': 'exploitation',
   'xss-exploit': 'exploitation',
   'auth-exploit': 'exploitation',
@@ -310,6 +434,10 @@ export const AGENT_PHASE_MAP: Readonly<Record<AgentName, PhaseName>> = Object.fr
   'prompt_injection-exploit': 'exploitation',
   'plugin_design-exploit': 'exploitation',
   'info_disclosure-exploit': 'exploitation',
+  'output_handling-exploit': 'exploitation',
+  'prompt_leakage-exploit': 'exploitation',
+  'vector_weaknesses-exploit': 'exploitation',
+  'unbounded_consumption-exploit': 'exploitation',
   report: 'reporting',
   // Rescan agents
   'injection-vuln-rescan': 'vulnerability-analysis',
@@ -320,6 +448,10 @@ export const AGENT_PHASE_MAP: Readonly<Record<AgentName, PhaseName>> = Object.fr
   'prompt_injection-vuln-rescan': 'vulnerability-analysis',
   'plugin_design-vuln-rescan': 'vulnerability-analysis',
   'info_disclosure-vuln-rescan': 'vulnerability-analysis',
+  'output_handling-vuln-rescan': 'vulnerability-analysis',
+  'prompt_leakage-vuln-rescan': 'vulnerability-analysis',
+  'vector_weaknesses-vuln-rescan': 'vulnerability-analysis',
+  'unbounded_consumption-vuln-rescan': 'vulnerability-analysis',
   'injection-exploit-rescan': 'exploitation',
   'xss-exploit-rescan': 'exploitation',
   'auth-exploit-rescan': 'exploitation',
@@ -328,6 +460,10 @@ export const AGENT_PHASE_MAP: Readonly<Record<AgentName, PhaseName>> = Object.fr
   'prompt_injection-exploit-rescan': 'exploitation',
   'plugin_design-exploit-rescan': 'exploitation',
   'info_disclosure-exploit-rescan': 'exploitation',
+  'output_handling-exploit-rescan': 'exploitation',
+  'prompt_leakage-exploit-rescan': 'exploitation',
+  'vector_weaknesses-exploit-rescan': 'exploitation',
+  'unbounded_consumption-exploit-rescan': 'exploitation',
   'report-rescan': 'reporting',
 });
 
@@ -365,7 +501,7 @@ export const PLAYWRIGHT_SESSION_MAPPING: Record<string, PlaywrightSession> = Obj
   // Phase 2: Reconnaissance
   recon: 'agent2',
 
-  // Phase 3: Vulnerability Analysis (up to 8 parallel agents)
+  // Phase 3: Vulnerability Analysis (up to 12 parallel agents)
   'vuln-injection': 'agent1',
   'vuln-xss': 'agent2',
   'vuln-auth': 'agent3',
@@ -374,8 +510,12 @@ export const PLAYWRIGHT_SESSION_MAPPING: Record<string, PlaywrightSession> = Obj
   'vuln-prompt_injection': 'agent6',
   'vuln-plugin_design': 'agent7',
   'vuln-info_disclosure': 'agent8',
+  'vuln-output_handling': 'agent9',
+  'vuln-prompt_leakage': 'agent10',
+  'vuln-vector_weaknesses': 'agent11',
+  'vuln-unbounded_consumption': 'agent12',
 
-  // Phase 4: Exploitation (up to 8 parallel agents - same as vuln counterparts)
+  // Phase 4: Exploitation (up to 12 parallel agents - same as vuln counterparts)
   'exploit-injection': 'agent1',
   'exploit-xss': 'agent2',
   'exploit-auth': 'agent3',
@@ -384,6 +524,10 @@ export const PLAYWRIGHT_SESSION_MAPPING: Record<string, PlaywrightSession> = Obj
   'exploit-prompt_injection': 'agent6',
   'exploit-plugin_design': 'agent7',
   'exploit-info_disclosure': 'agent8',
+  'exploit-output_handling': 'agent9',
+  'exploit-prompt_leakage': 'agent10',
+  'exploit-vector_weaknesses': 'agent11',
+  'exploit-unbounded_consumption': 'agent12',
 
   // Phase 5: Reporting
   'report-executive': 'agent3',
@@ -397,6 +541,10 @@ export const PLAYWRIGHT_SESSION_MAPPING: Record<string, PlaywrightSession> = Obj
   'vuln-prompt_injection-rescan': 'agent6',
   'vuln-plugin_design-rescan': 'agent7',
   'vuln-info_disclosure-rescan': 'agent8',
+  'vuln-output_handling-rescan': 'agent9',
+  'vuln-prompt_leakage-rescan': 'agent10',
+  'vuln-vector_weaknesses-rescan': 'agent11',
+  'vuln-unbounded_consumption-rescan': 'agent12',
 
   // Rescan: exploit verification (parallel, same session slots as normal exploit)
   'exploit-injection-rescan': 'agent1',
@@ -407,6 +555,10 @@ export const PLAYWRIGHT_SESSION_MAPPING: Record<string, PlaywrightSession> = Obj
   'exploit-prompt_injection-rescan': 'agent6',
   'exploit-plugin_design-rescan': 'agent7',
   'exploit-info_disclosure-rescan': 'agent8',
+  'exploit-output_handling-rescan': 'agent9',
+  'exploit-prompt_leakage-rescan': 'agent10',
+  'exploit-vector_weaknesses-rescan': 'agent11',
+  'exploit-unbounded_consumption-rescan': 'agent12',
 
   // Rescan: verification report
   'report-rescan': 'agent3',
@@ -435,6 +587,10 @@ export const AGENT_VALIDATORS: Record<AgentName, AgentValidator> = Object.freeze
   'prompt_injection-vuln': createVulnValidator('prompt_injection'),
   'plugin_design-vuln': createVulnValidator('plugin_design'),
   'info_disclosure-vuln': createVulnValidator('info_disclosure'),
+  'output_handling-vuln': createVulnValidator('output_handling'),
+  'prompt_leakage-vuln': createVulnValidator('prompt_leakage'),
+  'vector_weaknesses-vuln': createVulnValidator('vector_weaknesses'),
+  'unbounded_consumption-vuln': createVulnValidator('unbounded_consumption'),
 
   // Exploitation agents
   'injection-exploit': createExploitValidator('injection'),
@@ -445,6 +601,10 @@ export const AGENT_VALIDATORS: Record<AgentName, AgentValidator> = Object.freeze
   'prompt_injection-exploit': createExploitValidator('prompt_injection'),
   'plugin_design-exploit': createExploitValidator('plugin_design'),
   'info_disclosure-exploit': createExploitValidator('info_disclosure'),
+  'output_handling-exploit': createExploitValidator('output_handling'),
+  'prompt_leakage-exploit': createExploitValidator('prompt_leakage'),
+  'vector_weaknesses-exploit': createExploitValidator('vector_weaknesses'),
+  'unbounded_consumption-exploit': createExploitValidator('unbounded_consumption'),
 
   // Executive report agent
   report: async (sourceDir: string, logger: ActivityLogger): Promise<boolean> => {
@@ -468,6 +628,10 @@ export const AGENT_VALIDATORS: Record<AgentName, AgentValidator> = Object.freeze
   'prompt_injection-vuln-rescan': createVulnValidator('prompt_injection'),
   'plugin_design-vuln-rescan': createVulnValidator('plugin_design'),
   'info_disclosure-vuln-rescan': createVulnValidator('info_disclosure'),
+  'output_handling-vuln-rescan': createVulnValidator('output_handling'),
+  'prompt_leakage-vuln-rescan': createVulnValidator('prompt_leakage'),
+  'vector_weaknesses-vuln-rescan': createVulnValidator('vector_weaknesses'),
+  'unbounded_consumption-vuln-rescan': createVulnValidator('unbounded_consumption'),
 
   // Rescan: exploit verification agents
   'injection-exploit-rescan': createExploitValidator('injection'),
@@ -478,6 +642,10 @@ export const AGENT_VALIDATORS: Record<AgentName, AgentValidator> = Object.freeze
   'prompt_injection-exploit-rescan': createExploitValidator('prompt_injection'),
   'plugin_design-exploit-rescan': createExploitValidator('plugin_design'),
   'info_disclosure-exploit-rescan': createExploitValidator('info_disclosure'),
+  'output_handling-exploit-rescan': createExploitValidator('output_handling'),
+  'prompt_leakage-exploit-rescan': createExploitValidator('prompt_leakage'),
+  'vector_weaknesses-exploit-rescan': createExploitValidator('vector_weaknesses'),
+  'unbounded_consumption-exploit-rescan': createExploitValidator('unbounded_consumption'),
 
   // Rescan: verification report agent
   'report-rescan': async (sourceDir: string, logger: ActivityLogger): Promise<boolean> => {

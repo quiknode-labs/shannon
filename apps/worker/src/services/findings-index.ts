@@ -88,6 +88,10 @@ const QUEUE_FILES: Record<VulnClass, string> = {
   prompt_injection: 'prompt_injection_exploitation_queue.json',
   plugin_design: 'plugin_design_exploitation_queue.json',
   info_disclosure: 'info_disclosure_exploitation_queue.json',
+  output_handling: 'output_handling_exploitation_queue.json',
+  prompt_leakage: 'prompt_leakage_exploitation_queue.json',
+  vector_weaknesses: 'vector_weaknesses_exploitation_queue.json',
+  unbounded_consumption: 'unbounded_consumption_exploitation_queue.json',
 };
 
 /**
@@ -165,6 +169,10 @@ function extractCodeLocation(finding: RawFinding, vulnType: VulnClass): string {
     case 'prompt_injection':
     case 'plugin_design':
     case 'info_disclosure':
+    case 'output_handling':
+    case 'prompt_leakage':
+    case 'vector_weaknesses':
+    case 'unbounded_consumption':
       return finding.vulnerable_component ?? finding.attack_vector ?? '';
   }
 }

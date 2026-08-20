@@ -12,6 +12,14 @@ repos/
 apps/worker/prompts/*prompt_injection*
 apps/worker/prompts/*plugin_design*
 apps/worker/prompts/*info_disclosure*
+apps/worker/prompts/*output_handling*
+apps/worker/prompts/*prompt_leakage*
+apps/worker/prompts/*vector_weaknesses*
+apps/worker/prompts/*unbounded_consumption*
 apps/worker/prompts/pipeline-testing/*prompt_injection*
 apps/worker/prompts/pipeline-testing/*plugin_design*
 apps/worker/prompts/pipeline-testing/*info_disclosure*
+apps/worker/prompts/pipeline-testing/*output_handling*
+apps/worker/prompts/pipeline-testing/*prompt_leakage*
+apps/worker/prompts/pipeline-testing/*vector_weaknesses*
+apps/worker/prompts/pipeline-testing/*unbounded_consumption*

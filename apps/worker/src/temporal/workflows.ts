@@ -355,6 +355,34 @@ async function runRescanPipeline(
         runVuln: () => a.runInfoDisclosureVulnRescanAgent(rescanActivityInput),
         runExploit: () => a.runInfoDisclosureExploitRescanAgent(rescanActivityInput),
       },
+      {
+        vulnType: 'output_handling',
+        vulnAgent: 'output_handling-vuln-rescan',
+        exploitAgent: 'output_handling-exploit-rescan',
+        runVuln: () => a.runOutputHandlingVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runOutputHandlingExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'prompt_leakage',
+        vulnAgent: 'prompt_leakage-vuln-rescan',
+        exploitAgent: 'prompt_leakage-exploit-rescan',
+        runVuln: () => a.runPromptLeakageVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runPromptLeakageExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'vector_weaknesses',
+        vulnAgent: 'vector_weaknesses-vuln-rescan',
+        exploitAgent: 'vector_weaknesses-exploit-rescan',
+        runVuln: () => a.runVectorWeaknessesVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runVectorWeaknessesExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'unbounded_consumption',
+        vulnAgent: 'unbounded_consumption-vuln-rescan',
+        exploitAgent: 'unbounded_consumption-exploit-rescan',
+        runVuln: () => a.runUnboundedConsumptionVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runUnboundedConsumptionExploitRescanAgent(rescanActivityInput),
+      },
     ];
 
     const maxConcurrent = input.pipelineConfig?.max_concurrent_pipelines ?? 5;
@@ -679,6 +707,34 @@ export async function pentestPipeline(input: PipelineInput): Promise<PipelineSta
         exploitAgent: 'info_disclosure-exploit',
         runVuln: () => a.runInfoDisclosureVulnAgent(activityInput),
         runExploit: () => a.runInfoDisclosureExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'output_handling',
+        vulnAgent: 'output_handling-vuln',
+        exploitAgent: 'output_handling-exploit',
+        runVuln: () => a.runOutputHandlingVulnAgent(activityInput),
+        runExploit: () => a.runOutputHandlingExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'prompt_leakage',
+        vulnAgent: 'prompt_leakage-vuln',
+        exploitAgent: 'prompt_leakage-exploit',
+        runVuln: () => a.runPromptLeakageVulnAgent(activityInput),
+        runExploit: () => a.runPromptLeakageExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'vector_weaknesses',
+        vulnAgent: 'vector_weaknesses-vuln',
+        exploitAgent: 'vector_weaknesses-exploit',
+        runVuln: () => a.runVectorWeaknessesVulnAgent(activityInput),
+        runExploit: () => a.runVectorWeaknessesExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'unbounded_consumption',
+        vulnAgent: 'unbounded_consumption-vuln',
+        exploitAgent: 'unbounded_consumption-exploit',
+        runVuln: () => a.runUnboundedConsumptionVulnAgent(activityInput),
+        runExploit: () => a.runUnboundedConsumptionExploitAgent(activityInput),
       },
     ];
   }

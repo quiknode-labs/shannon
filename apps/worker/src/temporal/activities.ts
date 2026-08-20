@@ -291,6 +291,22 @@ export async function runInfoDisclosureVulnAgent(input: ActivityInput): Promise<
   return runAgentActivity('info_disclosure-vuln', input);
 }
 
+export async function runOutputHandlingVulnAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('output_handling-vuln', input);
+}
+
+export async function runPromptLeakageVulnAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('prompt_leakage-vuln', input);
+}
+
+export async function runVectorWeaknessesVulnAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('vector_weaknesses-vuln', input);
+}
+
+export async function runUnboundedConsumptionVulnAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('unbounded_consumption-vuln', input);
+}
+
 export async function runInjectionExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('injection-exploit', input);
 }
@@ -321,6 +337,22 @@ export async function runPluginDesignExploitAgent(input: ActivityInput): Promise
 
 export async function runInfoDisclosureExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('info_disclosure-exploit', input);
+}
+
+export async function runOutputHandlingExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('output_handling-exploit', input);
+}
+
+export async function runPromptLeakageExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('prompt_leakage-exploit', input);
+}
+
+export async function runVectorWeaknessesExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('vector_weaknesses-exploit', input);
+}
+
+export async function runUnboundedConsumptionExploitAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('unbounded_consumption-exploit', input);
 }
 
 export async function runReportAgent(input: ActivityInput): Promise<AgentMetrics> {
@@ -361,6 +393,22 @@ export async function runInfoDisclosureVulnRescanAgent(input: ActivityInput): Pr
   return runAgentActivity('info_disclosure-vuln-rescan', input);
 }
 
+export async function runOutputHandlingVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('output_handling-vuln-rescan', input);
+}
+
+export async function runPromptLeakageVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('prompt_leakage-vuln-rescan', input);
+}
+
+export async function runVectorWeaknessesVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('vector_weaknesses-vuln-rescan', input);
+}
+
+export async function runUnboundedConsumptionVulnRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('unbounded_consumption-vuln-rescan', input);
+}
+
 export async function runInjectionExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('injection-exploit-rescan', input);
 }
@@ -391,6 +439,22 @@ export async function runPluginDesignExploitRescanAgent(input: ActivityInput): P
 
 export async function runInfoDisclosureExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
   return runAgentActivity('info_disclosure-exploit-rescan', input);
+}
+
+export async function runOutputHandlingExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('output_handling-exploit-rescan', input);
+}
+
+export async function runPromptLeakageExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('prompt_leakage-exploit-rescan', input);
+}
+
+export async function runVectorWeaknessesExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('vector_weaknesses-exploit-rescan', input);
+}
+
+export async function runUnboundedConsumptionExploitRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
+  return runAgentActivity('unbounded_consumption-exploit-rescan', input);
 }
 
 export async function runReportRescanAgent(input: ActivityInput): Promise<AgentMetrics> {
@@ -921,6 +985,10 @@ export async function setupRescanWorkspace(
     prompt_injection: 'prompt_injection_exploitation_queue.json',
     plugin_design: 'plugin_design_exploitation_queue.json',
     info_disclosure: 'info_disclosure_exploitation_queue.json',
+    output_handling: 'output_handling_exploitation_queue.json',
+    prompt_leakage: 'prompt_leakage_exploitation_queue.json',
+    vector_weaknesses: 'vector_weaknesses_exploitation_queue.json',
+    unbounded_consumption: 'unbounded_consumption_exploitation_queue.json',
   };
 
   for (const [vulnType, findingIds] of Object.entries(findingsByType)) {

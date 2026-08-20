@@ -70,6 +70,26 @@ const VULN_SUMMARY_SPECS: Record<VulnClass, VulnSummarySpec> = {
     evidenceSection: 'Info Disclosure Exploitation Evidence',
     noneFoundLabel: 'sensitive information disclosure',
   },
+  output_handling: {
+    heading: 'Improper Output Handling Vulnerabilities',
+    evidenceSection: 'Output Handling Exploitation Evidence',
+    noneFoundLabel: 'improper output handling',
+  },
+  prompt_leakage: {
+    heading: 'System Prompt Leakage Vulnerabilities',
+    evidenceSection: 'Prompt Leakage Exploitation Evidence',
+    noneFoundLabel: 'system prompt leakage',
+  },
+  vector_weaknesses: {
+    heading: 'Vector & Embedding Weakness Vulnerabilities',
+    evidenceSection: 'Vector Weaknesses Exploitation Evidence',
+    noneFoundLabel: 'vector and embedding weaknesses',
+  },
+  unbounded_consumption: {
+    heading: 'Unbounded Consumption Vulnerabilities',
+    evidenceSection: 'Unbounded Consumption Exploitation Evidence',
+    noneFoundLabel: 'unbounded consumption',
+  },
 };
 
 function renderVulnSummarySubsections(selected: readonly VulnClass[]): string {
@@ -357,7 +377,7 @@ async function interpolateVariables(
       /{{VULN_CLASSES_TESTED}}/g,
       vulnClasses.length > 0
         ? vulnClasses.join(', ')
-        : 'injection, xss, auth, authz, ssrf, prompt_injection, plugin_design, info_disclosure',
+        : 'injection, xss, auth, authz, ssrf, prompt_injection, plugin_design, info_disclosure, output_handling, prompt_leakage, vector_weaknesses, unbounded_consumption',
     );
     result = result.replace(/{{VULN_SUMMARY_SUBSECTIONS}}/g, renderVulnSummarySubsections(vulnClasses));
 

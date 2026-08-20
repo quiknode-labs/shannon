@@ -111,6 +111,34 @@ const InfoDisclosureVulnerability = baseVulnerability.extend({
   impact: z.string().optional(),
 });
 
+const OutputHandlingVulnerability = baseVulnerability.extend({
+  vulnerable_component: z.string().optional(),
+  attack_vector: z.string().optional(),
+  evidence: z.string().optional(),
+  impact: z.string().optional(),
+});
+
+const PromptLeakageVulnerability = baseVulnerability.extend({
+  vulnerable_component: z.string().optional(),
+  attack_vector: z.string().optional(),
+  evidence: z.string().optional(),
+  impact: z.string().optional(),
+});
+
+const VectorWeaknessesVulnerability = baseVulnerability.extend({
+  vulnerable_component: z.string().optional(),
+  attack_vector: z.string().optional(),
+  evidence: z.string().optional(),
+  impact: z.string().optional(),
+});
+
+const UnboundedConsumptionVulnerability = baseVulnerability.extend({
+  vulnerable_component: z.string().optional(),
+  attack_vector: z.string().optional(),
+  evidence: z.string().optional(),
+  impact: z.string().optional(),
+});
+
 // === Inferred Entry Types (consumed by renderer) ===
 
 export type InjectionFinding = z.infer<typeof InjectionVulnerability>;
@@ -121,6 +149,10 @@ export type AuthzFinding = z.infer<typeof AuthzVulnerability>;
 export type PromptInjectionFinding = z.infer<typeof PromptInjectionVulnerability>;
 export type PluginDesignFinding = z.infer<typeof PluginDesignVulnerability>;
 export type InfoDisclosureFinding = z.infer<typeof InfoDisclosureVulnerability>;
+export type OutputHandlingFinding = z.infer<typeof OutputHandlingVulnerability>;
+export type PromptLeakageFinding = z.infer<typeof PromptLeakageVulnerability>;
+export type VectorWeaknessesFinding = z.infer<typeof VectorWeaknessesVulnerability>;
+export type UnboundedConsumptionFinding = z.infer<typeof UnboundedConsumptionVulnerability>;
 
 // === Convert to JSON Schema for SDK ===
 
@@ -250,6 +282,54 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
         ),
       }),
     ),
+    'output_handling-vuln': toOutputFormat(
+      z.object({
+        vulnerabilities: z.array(
+          base.extend({
+            vulnerable_component: z.string().optional(),
+            attack_vector: z.string().optional(),
+            evidence: z.string().optional(),
+            impact: z.string().optional(),
+          }),
+        ),
+      }),
+    ),
+    'prompt_leakage-vuln': toOutputFormat(
+      z.object({
+        vulnerabilities: z.array(
+          base.extend({
+            vulnerable_component: z.string().optional(),
+            attack_vector: z.string().optional(),
+            evidence: z.string().optional(),
+            impact: z.string().optional(),
+          }),
+        ),
+      }),
+    ),
+    'vector_weaknesses-vuln': toOutputFormat(
+      z.object({
+        vulnerabilities: z.array(
+          base.extend({
+            vulnerable_component: z.string().optional(),
+            attack_vector: z.string().optional(),
+            evidence: z.string().optional(),
+            impact: z.string().optional(),
+          }),
+        ),
+      }),
+    ),
+    'unbounded_consumption-vuln': toOutputFormat(
+      z.object({
+        vulnerabilities: z.array(
+          base.extend({
+            vulnerable_component: z.string().optional(),
+            attack_vector: z.string().optional(),
+            evidence: z.string().optional(),
+            impact: z.string().optional(),
+          }),
+        ),
+      }),
+    ),
   };
 }
 
@@ -265,6 +345,10 @@ const VULN_AGENT_QUEUE_FILENAMES: Partial<Record<AgentName, string>> = {
   'prompt_injection-vuln': 'prompt_injection_exploitation_queue.json',
   'plugin_design-vuln': 'plugin_design_exploitation_queue.json',
   'info_disclosure-vuln': 'info_disclosure_exploitation_queue.json',
+  'output_handling-vuln': 'output_handling_exploitation_queue.json',
+  'prompt_leakage-vuln': 'prompt_leakage_exploitation_queue.json',
+  'vector_weaknesses-vuln': 'vector_weaknesses_exploitation_queue.json',
+  'unbounded_consumption-vuln': 'unbounded_consumption_exploitation_queue.json',
 };
 
 /** Returns the structured output format for a vuln agent, or undefined for non-vuln agents. */

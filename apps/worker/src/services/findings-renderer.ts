@@ -22,9 +22,13 @@ import type {
   AuthzFinding,
   InfoDisclosureFinding,
   InjectionFinding,
+  OutputHandlingFinding,
   PluginDesignFinding,
   PromptInjectionFinding,
+  PromptLeakageFinding,
   SsrfFinding,
+  UnboundedConsumptionFinding,
+  VectorWeaknessesFinding,
   XssFinding,
 } from '../ai/queue-schemas.js';
 import { deliverablesDir } from '../paths.js';
@@ -185,6 +189,62 @@ function renderInfoDisclosureEntry(e: InfoDisclosureFinding): string {
   );
 }
 
+function renderOutputHandlingEntry(e: OutputHandlingFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderPromptLeakageEntry(e: PromptLeakageFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderVectorWeaknessesEntry(e: VectorWeaknessesFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderUnboundedConsumptionEntry(e: UnboundedConsumptionFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
 // === Class Registry ===
 
 const CLASSES: Record<VulnClass, ClassConfig<unknown>> = {
@@ -243,6 +303,34 @@ const CLASSES: Record<VulnClass, ClassConfig<unknown>> = {
     queueFile: 'info_disclosure_exploitation_queue.json',
     findingsFile: 'info_disclosure_findings.md',
     renderEntry: (e) => renderInfoDisclosureEntry(e as InfoDisclosureFinding),
+  },
+  output_handling: {
+    heading: 'Improper Output Handling',
+    noneFoundLabel: 'improper output handling',
+    queueFile: 'output_handling_exploitation_queue.json',
+    findingsFile: 'output_handling_findings.md',
+    renderEntry: (e) => renderOutputHandlingEntry(e as OutputHandlingFinding),
+  },
+  prompt_leakage: {
+    heading: 'System Prompt Leakage',
+    noneFoundLabel: 'system prompt leakage',
+    queueFile: 'prompt_leakage_exploitation_queue.json',
+    findingsFile: 'prompt_leakage_findings.md',
+    renderEntry: (e) => renderPromptLeakageEntry(e as PromptLeakageFinding),
+  },
+  vector_weaknesses: {
+    heading: 'Vector & Embedding Weaknesses',
+    noneFoundLabel: 'vector and embedding weaknesses',
+    queueFile: 'vector_weaknesses_exploitation_queue.json',
+    findingsFile: 'vector_weaknesses_findings.md',
+    renderEntry: (e) => renderVectorWeaknessesEntry(e as VectorWeaknessesFinding),
+  },
+  unbounded_consumption: {
+    heading: 'Unbounded Consumption',
+    noneFoundLabel: 'unbounded consumption',
+    queueFile: 'unbounded_consumption_exploitation_queue.json',
+    findingsFile: 'unbounded_consumption_findings.md',
+    renderEntry: (e) => renderUnboundedConsumptionEntry(e as UnboundedConsumptionFinding),
   },
 };
 

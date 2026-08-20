@@ -46,6 +46,26 @@ export async function assembleFinalReport(
       paths: ['info_disclosure_exploitation_evidence.md', 'info_disclosure_findings.md'],
       required: false,
     },
+    {
+      name: 'Improper Output Handling',
+      paths: ['output_handling_exploitation_evidence.md', 'output_handling_findings.md'],
+      required: false,
+    },
+    {
+      name: 'System Prompt Leakage',
+      paths: ['prompt_leakage_exploitation_evidence.md', 'prompt_leakage_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Vector & Embedding Weaknesses',
+      paths: ['vector_weaknesses_exploitation_evidence.md', 'vector_weaknesses_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Unbounded Consumption',
+      paths: ['unbounded_consumption_exploitation_evidence.md', 'unbounded_consumption_findings.md'],
+      required: false,
+    },
   ];
 
   const dir = deliverablesDir(sourceDir, deliverablesSubdir);

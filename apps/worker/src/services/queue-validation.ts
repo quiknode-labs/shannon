@@ -103,6 +103,22 @@ const VULN_TYPE_CONFIG: VulnTypeConfig = Object.freeze({
     deliverable: 'info_disclosure_analysis_deliverable.md',
     queue: 'info_disclosure_exploitation_queue.json',
   }),
+  output_handling: Object.freeze({
+    deliverable: 'output_handling_analysis_deliverable.md',
+    queue: 'output_handling_exploitation_queue.json',
+  }),
+  prompt_leakage: Object.freeze({
+    deliverable: 'prompt_leakage_analysis_deliverable.md',
+    queue: 'prompt_leakage_exploitation_queue.json',
+  }),
+  vector_weaknesses: Object.freeze({
+    deliverable: 'vector_weaknesses_analysis_deliverable.md',
+    queue: 'vector_weaknesses_exploitation_queue.json',
+  }),
+  unbounded_consumption: Object.freeze({
+    deliverable: 'unbounded_consumption_analysis_deliverable.md',
+    queue: 'unbounded_consumption_exploitation_queue.json',
+  }),
 }) as VulnTypeConfig;
 
 // Pure function to create validation rule

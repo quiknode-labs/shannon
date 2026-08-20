@@ -43,6 +43,10 @@ export function getAgentPrefix(description: string): string {
     'prompt_injection-vuln': '[Prompt Injection]',
     'plugin_design-vuln': '[Plugin Design]',
     'info_disclosure-vuln': '[Info Disclosure]',
+    'output_handling-vuln': '[Output Handling]',
+    'prompt_leakage-vuln': '[Prompt Leakage]',
+    'vector_weaknesses-vuln': '[Vector Weaknesses]',
+    'unbounded_consumption-vuln': '[Unbounded Consumption]',
     'injection-exploit': '[Injection]',
     'xss-exploit': '[XSS]',
     'auth-exploit': '[Auth]',
@@ -51,6 +55,10 @@ export function getAgentPrefix(description: string): string {
     'prompt_injection-exploit': '[Prompt Injection]',
     'plugin_design-exploit': '[Plugin Design]',
     'info_disclosure-exploit': '[Info Disclosure]',
+    'output_handling-exploit': '[Output Handling]',
+    'prompt_leakage-exploit': '[Prompt Leakage]',
+    'vector_weaknesses-exploit': '[Vector Weaknesses]',
+    'unbounded_consumption-exploit': '[Unbounded Consumption]',
   };
 
   // First try to match by agent name directly
@@ -70,6 +78,10 @@ export function getAgentPrefix(description: string): string {
   if (description.includes('prompt_injection')) return '[Prompt Injection]';
   if (description.includes('plugin_design')) return '[Plugin Design]';
   if (description.includes('info_disclosure')) return '[Info Disclosure]';
+  if (description.includes('output_handling')) return '[Output Handling]';
+  if (description.includes('prompt_leakage')) return '[Prompt Leakage]';
+  if (description.includes('vector_weaknesses')) return '[Vector Weaknesses]';
+  if (description.includes('unbounded_consumption')) return '[Unbounded Consumption]';
 
   return '[Agent]';
 }
