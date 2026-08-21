@@ -9,7 +9,7 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ensureImage, ensureInfra, randomSuffix, spawnWorker } from '../docker.js';
+import { ensureImage, ensureInfra, getInstanceId, randomSuffix, spawnWorker, workerNamePrefix } from '../docker.js';
 import { buildEnvFlags, loadEnv, validateCredentials } from '../env.js';
 import { getCredentialsPath, getWorkspacesDir, initHome } from '../home.js';
 import { isLocal } from '../mode.js';
@@ -102,8 +102,9 @@ export async function rescan(args: RescanArgs): Promise<void> {
   fs.mkdirSync(path.join(repo.hostPath, '.playwright'), { recursive: true });
 
   // 8. Ensure image and start infra
+  const instanceId = getInstanceId();
   ensureImage(args.version);
-  await ensureInfra();
+  await ensureInfra(instanceId);
 
   const credentialsPath = getCredentialsPath();
   const hasCredentials = fs.existsSync(credentialsPath);
@@ -125,7 +126,7 @@ export async function rescan(args: RescanArgs): Promise<void> {
   // 11. Spawn worker container
   const suffix = randomSuffix();
   const taskQueue = `shannon-${suffix}`;
-  const containerName = `shannon-worker-${suffix}`;
+  const containerName = `${workerNamePrefix(instanceId)}${suffix}`;
 
   console.log(`\n  Source workspace: ${args.sourceWorkspace}`);
   console.log(`  Rescan workspace: ${rescanWorkspace}`);
@@ -139,7 +140,8 @@ export async function rescan(args: RescanArgs): Promise<void> {
     workspacesDir,
     taskQueue,
     containerName,
-    envFlags: buildEnvFlags(),
+    instanceId,
+    envFlags: buildEnvFlags(instanceId),
     workspace: rescanWorkspace,
     rescanFindingsFile: containerPayloadPath,
     sourceWorkspace: args.sourceWorkspace,
@@ -184,7 +186,9 @@ export async function rescan(args: RescanArgs): Promise<void> {
         started = true;
         workflowId = session.session.originalWorkflowId;
         process.stdout.write('\r\x1b[K');
-        const logsCmd = isLocal() ? `./shannon logs ${rescanWorkspace}` : `npx @keygraph/shannon logs ${rescanWorkspace}`;
+        const logsCmd = isLocal()
+          ? `./shannon logs ${rescanWorkspace}`
+          : `npx @keygraph/shannon logs ${rescanWorkspace}`;
         console.log(`  Workflow:   ${workflowId}`);
         console.log(`  Logs:       ${logsCmd}`);
         console.log(`  Output:     ${workspacePath}/\n`);
@@ -208,7 +212,13 @@ export async function rescan(args: RescanArgs): Promise<void> {
     }
   };
 
-  process.on('SIGINT', () => { cleanup(); process.exit(0); });
-  process.on('SIGTERM', () => { cleanup(); process.exit(0); });
+  process.on('SIGINT', () => {
+    cleanup();
+    process.exit(0);
+  });
+  process.on('SIGTERM', () => {
+    cleanup();
+    process.exit(0);
+  });
   process.on('exit', cleanup);
 }

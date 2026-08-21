@@ -12,6 +12,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
+import { getRepoDir } from './home.js';
 import { getMode } from './mode.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -25,8 +26,7 @@ export function getWorkerImage(version: string): string {
 
 function getComposeFile(): string {
   if (getMode() === 'local') {
-    const repoDir = process.env.SHANNON_REPO_DIR ?? process.cwd();
-    return path.resolve(repoDir, 'docker-compose.yml');
+    return path.resolve(getRepoDir(), 'docker-compose.yml');
   }
   return path.resolve(__dirname, '..', 'infra', 'compose.yml');
 }
@@ -56,12 +56,64 @@ function runOutput(cmd: string, args: string[]): string {
 }
 
 /**
+ * Deterministic per-checkout instance ID so multiple Shannon installations on
+ * the same host (e.g. separate local-mode clones) never collide on Docker
+ * container/network names. Derived from the checkout root path — stable
+ * across runs of the same checkout, distinct across different ones.
+ *
+ * NOTE: npx mode always resolves to the same `~/.shannon` root, so it still
+ * assumes a single shared install per user — that hasn't changed.
+ */
+export function getInstanceId(): string {
+  const root = getMode() === 'local' ? path.resolve(getRepoDir()) : path.join(os.homedir(), '.shannon');
+  return crypto.createHash('sha256').update(root).digest('hex').slice(0, 8);
+}
+
+export function temporalContainerName(instanceId: string): string {
+  return `shannon-temporal-${instanceId}`;
+}
+
+export function networkName(instanceId: string): string {
+  return `shannon-net-${instanceId}`;
+}
+
+/**
+ * Explicit Compose project name, scoped per instance. Without this, Compose
+ * derives the project name from the checkout's directory basename — and since
+ * every clone of this repo is named "shannon", two unrelated checkouts would
+ * resolve to the same project and Compose would "adopt" (recreate) each
+ * other's containers and volumes on `up`/`down`.
+ */
+export function composeProjectName(instanceId: string): string {
+  return `shannon-${instanceId}`;
+}
+
+/**
+ * Resolve the host port Docker assigned for one of the Temporal container's
+ * published ports. Compose maps these to ephemeral host ports (rather than a
+ * fixed 7233/8233) so multiple instances can run side by side without a bind
+ * conflict — this looks up whatever port a given instance actually landed on.
+ * Returns null if the container isn't up or the port can't be resolved.
+ */
+export function getTemporalHostPort(instanceId: string, containerPort: number): string | null {
+  const output = runOutput('docker', ['port', temporalContainerName(instanceId), `${containerPort}/tcp`]);
+  const match = output.match(/:(\d+)\s*$/);
+  return match?.[1] ?? null;
+}
+
+/** Temporal Web UI URL for this instance, falling back to the default port if it can't be resolved. */
+export function getTemporalWebUiUrl(instanceId: string): string {
+  const port = getTemporalHostPort(instanceId, 8233) ?? '8233';
+  return `http://localhost:${port}`;
+}
+
+/**
  * Check if Temporal is running and healthy.
  */
-export function isTemporalReady(): boolean {
+export function isTemporalReady(instanceId: string): boolean {
   const output = runOutput('docker', [
     'exec',
-    'shannon-temporal',
+    temporalContainerName(instanceId),
     'temporal',
     'operator',
     'cluster',
@@ -73,29 +125,23 @@ export function isTemporalReady(): boolean {
 }
 
 /**
- * Ensure Temporal is running via compose.
+ * Ensure Temporal is running via compose, scoped to this checkout's instance ID.
  */
-export async function ensureInfra(): Promise<void> {
-  if (isTemporalReady()) {
+export async function ensureInfra(instanceId: string): Promise<void> {
+  if (isTemporalReady(instanceId)) {
     return;
   }
 
   const composeFile = getComposeFile();
   console.log('Starting Shannon infrastructure...');
-
-  // Remove any stale container with the same name — it may have been created by a
-  // different Docker Compose project (e.g. npx Shannon) and would block `up`.
-  try {
-    execFileSync('docker', ['rm', '-f', 'shannon-temporal'], { stdio: 'pipe' });
-  } catch {
-    // Container doesn't exist — nothing to remove.
-  }
-
-  execFileSync('docker', ['compose', '-f', composeFile, 'up', '-d'], { stdio: 'inherit' });
+  execFileSync('docker', ['compose', '-f', composeFile, '-p', composeProjectName(instanceId), 'up', '-d'], {
+    stdio: 'inherit',
+    env: { ...process.env, SHANNON_INSTANCE_ID: instanceId },
+  });
 
   console.log('Waiting for Temporal to be ready...');
   for (let i = 0; i < 30; i++) {
-    if (isTemporalReady()) {
+    if (isTemporalReady(instanceId)) {
       console.log('Temporal is ready!');
       return;
     }
@@ -245,6 +291,7 @@ export interface WorkerOptions {
   workspacesDir: string;
   taskQueue: string;
   containerName: string;
+  instanceId: string;
   envFlags: string[];
   config?: { hostPath: string; containerPath: string };
   credentials?: string;
@@ -266,7 +313,7 @@ export function spawnWorker(opts: WorkerOptions): ChildProcess {
   if (!opts.debug) {
     args.push('--rm');
   }
-  args.push('--name', opts.containerName, '--network', 'shannon-net');
+  args.push('--name', opts.containerName, '--network', networkName(opts.instanceId));
 
   // Add host flag for Linux
   args.push(...addHostFlag());
@@ -349,11 +396,16 @@ export function spawnWorker(opts: WorkerOptions): ChildProcess {
   });
 }
 
+export function workerNamePrefix(instanceId: string): string {
+  return `shannon-worker-${instanceId}-`;
+}
+
 /**
- * Stop all running shannon-worker-* containers.
+ * Stop all running worker containers belonging to this checkout's instance.
+ * Scoped by instance ID so it never touches another checkout's in-flight scans.
  */
-export function stopWorkers(): void {
-  const workers = runOutput('docker', ['ps', '-q', '--filter', 'name=shannon-worker-']);
+export function stopWorkers(instanceId: string): void {
+  const workers = runOutput('docker', ['ps', '-q', '--filter', `name=${workerNamePrefix(instanceId)}`]);
   if (!workers) return;
 
   const ids = workers.split('\n').filter(Boolean);
@@ -362,13 +414,48 @@ export function stopWorkers(): void {
 }
 
 /**
- * Tear down the compose stack.
+ * Find the running worker container for a specific workspace, if any.
+ * Worker container names carry a random suffix (not the workspace name), so
+ * this matches by inspecting each candidate's `--workspace <name>` launch arg.
  */
-export function stopInfra(clean: boolean): void {
+function findWorkerContainerForWorkspace(instanceId: string, workspace: string): string | null {
+  const workers = runOutput('docker', ['ps', '-q', '--filter', `name=${workerNamePrefix(instanceId)}`]);
+  if (!workers) return null;
+
+  for (const id of workers.split('\n').filter(Boolean)) {
+    const cmdJson = runOutput('docker', ['inspect', id, '--format', '{{json .Config.Cmd}}']);
+    if (!cmdJson) continue;
+    try {
+      const cmd: string[] = JSON.parse(cmdJson);
+      const wsIndex = cmd.indexOf('--workspace');
+      if (wsIndex !== -1 && cmd[wsIndex + 1] === workspace) return id;
+    } catch {
+      // Malformed Cmd JSON — skip this container.
+    }
+  }
+  return null;
+}
+
+/**
+ * Stop only the worker container for one workspace — never touches infra or
+ * any other concurrently-running scan. Returns true if a matching container
+ * was found and stopped.
+ */
+export function stopWorker(instanceId: string, workspace: string): boolean {
+  const id = findWorkerContainerForWorkspace(instanceId, workspace);
+  if (!id) return false;
+  execFileSync('docker', ['stop', id], { stdio: 'inherit' });
+  return true;
+}
+
+/**
+ * Tear down the compose stack for this checkout's instance.
+ */
+export function stopInfra(clean: boolean, instanceId: string): void {
   const composeFile = getComposeFile();
-  const args = ['compose', '-f', composeFile, 'down'];
+  const args = ['compose', '-f', composeFile, '-p', composeProjectName(instanceId), 'down'];
   if (clean) args.push('-v');
-  execFileSync('docker', args, { stdio: 'inherit' });
+  execFileSync('docker', args, { stdio: 'inherit', env: { ...process.env, SHANNON_INSTANCE_ID: instanceId } });
 }
 
 /**
@@ -386,13 +473,13 @@ function pruneOldImages(currentVersion: string): void {
 }
 
 /**
- * List running worker containers.
+ * List running worker containers belonging to this checkout's instance.
  */
-export function listRunningWorkers(): string {
+export function listRunningWorkers(instanceId: string): string {
   return runOutput('docker', [
     'ps',
     '--filter',
-    'name=shannon-worker-',
+    `name=${workerNamePrefix(instanceId)}`,
     '--format',
     'table {{.Names}}\t{{.Status}}\t{{.RunningFor}}',
   ]);

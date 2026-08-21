@@ -5,3 +5,27 @@ credentials/
 dist/
 repos/
 .turbo/
+
+# Prompt files for externally-supplied vulnerability classes. These are
+# populated onto disk by the invoking deployment at runtime (not part of
+# this repo) and must never be committed here.
+apps/worker/prompts/*prompt_injection*
+apps/worker/prompts/*plugin_design*
+apps/worker/prompts/*info_disclosure*
+apps/worker/prompts/*output_handling*
+apps/worker/prompts/*prompt_leakage*
+apps/worker/prompts/*vector_weaknesses*
+apps/worker/prompts/*unbounded_consumption*
+apps/worker/prompts/*crypto_failures*
+apps/worker/prompts/*security_misconfiguration*
+apps/worker/prompts/*insecure_deserialization*
+apps/worker/prompts/pipeline-testing/*prompt_injection*
+apps/worker/prompts/pipeline-testing/*plugin_design*
+apps/worker/prompts/pipeline-testing/*info_disclosure*
+apps/worker/prompts/pipeline-testing/*output_handling*
+apps/worker/prompts/pipeline-testing/*prompt_leakage*
+apps/worker/prompts/pipeline-testing/*vector_weaknesses*
+apps/worker/prompts/pipeline-testing/*unbounded_consumption*
+apps/worker/prompts/pipeline-testing/*crypto_failures*
+apps/worker/prompts/pipeline-testing/*security_misconfiguration*
+apps/worker/prompts/pipeline-testing/*insecure_deserialization*

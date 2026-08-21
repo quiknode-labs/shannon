@@ -350,10 +350,11 @@ function buildPipelineInput(
     ...(Object.keys(orchestration.pipelineConfig).length > 0 && { pipelineConfig: orchestration.pipelineConfig }),
     ...(orchestration.vulnClasses && { vulnClasses: orchestration.vulnClasses }),
     ...(orchestration.exploit !== undefined && { exploit: orchestration.exploit }),
-    ...(rescanFindings && rescanFindings.length > 0 && {
-      rescanMode: true,
-      rescanFindings,
-    }),
+    ...(rescanFindings &&
+      rescanFindings.length > 0 && {
+        rescanMode: true,
+        rescanFindings,
+      }),
     ...(args.sourceWorkspace && { sourceWorkspace: args.sourceWorkspace }),
   };
 }

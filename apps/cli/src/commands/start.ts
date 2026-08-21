@@ -8,7 +8,15 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ensureImage, ensureInfra, randomSuffix, spawnWorker } from '../docker.js';
+import {
+  ensureImage,
+  ensureInfra,
+  getInstanceId,
+  getTemporalWebUiUrl,
+  randomSuffix,
+  spawnWorker,
+  workerNamePrefix,
+} from '../docker.js';
 import { buildEnvFlags, loadEnv, validateCredentials } from '../env.js';
 import { getCredentialsPath, getWorkspacesDir, initHome } from '../home.js';
 import { isLocal } from '../mode.js';
@@ -48,13 +56,14 @@ export async function start(args: StartArgs): Promise<void> {
   fs.chmodSync(workspacesDir, 0o777);
 
   // 5. Ensure image (auto-build in dev, pull in npx) and start infra
+  const instanceId = getInstanceId();
   ensureImage(args.version);
-  await ensureInfra();
+  await ensureInfra(instanceId);
 
   // 6. Generate unique task queue and container name
   const suffix = randomSuffix();
   const taskQueue = `shannon-${suffix}`;
-  const containerName = `shannon-worker-${suffix}`;
+  const containerName = `${workerNamePrefix(instanceId)}${suffix}`;
 
   // 7. Generate workspace name if not provided
   const workspace =
@@ -107,7 +116,8 @@ export async function start(args: StartArgs): Promise<void> {
     workspacesDir,
     taskQueue,
     containerName,
-    envFlags: buildEnvFlags(),
+    instanceId,
+    envFlags: buildEnvFlags(instanceId),
     ...(config && { config }),
     ...(hasCredentials && { credentials: credentialsPath }),
     ...(promptsDir && { promptsDir }),
@@ -173,7 +183,7 @@ export async function start(args: StartArgs): Promise<void> {
 
         // Clear waiting line and show info
         process.stdout.write('\r\x1b[K');
-        printInfo(args, workspace, workflowId, repo.hostPath, workspacesDir);
+        printInfo(args, workspace, workflowId, repo.hostPath, workspacesDir, instanceId);
         return;
       }
     } catch {
@@ -224,9 +234,11 @@ function printInfo(
   workflowId: string,
   repoPath: string,
   workspacesDir: string,
+  instanceId: string,
 ): void {
   const logsCmd = isLocal() ? `./shannon logs ${workspace}` : `npx @keygraph/shannon logs ${workspace}`;
   const reportsPath = path.join(workspacesDir, workspace);
+  const webUiUrl = getTemporalWebUiUrl(instanceId);
 
   console.log(`  Target:     ${args.url}`);
   console.log(`  Repository: ${repoPath}`);
@@ -240,9 +252,9 @@ function printInfo(
   console.log('');
   console.log('  Monitor:');
   if (workflowId) {
-    console.log(`    Web UI:  http://localhost:8233/namespaces/default/workflows/${workflowId}`);
+    console.log(`    Web UI:  ${webUiUrl}/namespaces/default/workflows/${workflowId}`);
   } else {
-    console.log('    Web UI:  http://localhost:8233');
+    console.log(`    Web UI:  ${webUiUrl}`);
   }
   console.log(`    Logs:    ${logsCmd}`);
   console.log('');

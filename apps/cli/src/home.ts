@@ -13,7 +13,7 @@ import { getMode } from './mode.js';
 const SHANNON_HOME = path.join(os.homedir(), '.shannon');
 
 /** Repo root directory — set by the ./shannon entry point so paths resolve correctly regardless of caller CWD. */
-function getRepoDir(): string {
+export function getRepoDir(): string {
   return process.env.SHANNON_REPO_DIR ?? process.cwd();
 }
 
@@ -25,9 +25,7 @@ export function getWorkspacesDir(): string {
   if (process.env.SHANNON_WORKSPACES_DIR) {
     return path.resolve(process.env.SHANNON_WORKSPACES_DIR);
   }
-  return getMode() === 'local'
-    ? path.join(getRepoDir(), 'workspaces')
-    : path.join(SHANNON_HOME, 'workspaces');
+  return getMode() === 'local' ? path.join(getRepoDir(), 'workspaces') : path.join(SHANNON_HOME, 'workspaces');
 }
 
 /**

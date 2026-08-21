@@ -17,7 +17,23 @@
  */
 
 import { fs, path } from 'zx';
-import type { AuthFinding, AuthzFinding, InjectionFinding, SsrfFinding, XssFinding } from '../ai/queue-schemas.js';
+import type {
+  AuthFinding,
+  AuthzFinding,
+  CryptoFailuresFinding,
+  InfoDisclosureFinding,
+  InjectionFinding,
+  InsecureDeserializationFinding,
+  OutputHandlingFinding,
+  PluginDesignFinding,
+  PromptInjectionFinding,
+  PromptLeakageFinding,
+  SecurityMisconfigurationFinding,
+  SsrfFinding,
+  UnboundedConsumptionFinding,
+  VectorWeaknessesFinding,
+  XssFinding,
+} from '../ai/queue-schemas.js';
 import { deliverablesDir } from '../paths.js';
 import type { ActivityLogger } from '../types/activity-logger.js';
 import type { VulnClass } from '../types/config.js';
@@ -134,6 +150,146 @@ function renderXssEntry(e: XssFinding): string {
   );
 }
 
+function renderPromptInjectionEntry(e: PromptInjectionFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderPluginDesignEntry(e: PluginDesignFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderInfoDisclosureEntry(e: InfoDisclosureFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderOutputHandlingEntry(e: OutputHandlingFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderPromptLeakageEntry(e: PromptLeakageFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderVectorWeaknessesEntry(e: VectorWeaknessesFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderUnboundedConsumptionEntry(e: UnboundedConsumptionFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderCryptoFailuresEntry(e: CryptoFailuresFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderSecurityMisconfigurationEntry(e: SecurityMisconfigurationFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
+function renderInsecureDeserializationEntry(e: InsecureDeserializationFinding): string {
+  return buildEntry(
+    e.ID,
+    e.vulnerability_type,
+    [
+      summaryRow('Vulnerable component', e.vulnerable_component),
+      summaryRow('Attack vector', e.attack_vector),
+      summaryRow('Impact', e.impact),
+      summaryRow('Evidence', e.evidence),
+    ],
+    e.notes,
+  );
+}
+
 // === Class Registry ===
 
 const CLASSES: Record<VulnClass, ClassConfig<unknown>> = {
@@ -171,6 +327,76 @@ const CLASSES: Record<VulnClass, ClassConfig<unknown>> = {
     queueFile: 'ssrf_exploitation_queue.json',
     findingsFile: 'ssrf_findings.md',
     renderEntry: (e) => renderSsrfEntry(e as SsrfFinding),
+  },
+  prompt_injection: {
+    heading: 'Prompt Injection',
+    noneFoundLabel: 'prompt injection',
+    queueFile: 'prompt_injection_exploitation_queue.json',
+    findingsFile: 'prompt_injection_findings.md',
+    renderEntry: (e) => renderPromptInjectionEntry(e as PromptInjectionFinding),
+  },
+  plugin_design: {
+    heading: 'Insecure Plugin Design',
+    noneFoundLabel: 'insecure plugin design',
+    queueFile: 'plugin_design_exploitation_queue.json',
+    findingsFile: 'plugin_design_findings.md',
+    renderEntry: (e) => renderPluginDesignEntry(e as PluginDesignFinding),
+  },
+  info_disclosure: {
+    heading: 'Sensitive Information Disclosure',
+    noneFoundLabel: 'sensitive information disclosure',
+    queueFile: 'info_disclosure_exploitation_queue.json',
+    findingsFile: 'info_disclosure_findings.md',
+    renderEntry: (e) => renderInfoDisclosureEntry(e as InfoDisclosureFinding),
+  },
+  output_handling: {
+    heading: 'Improper Output Handling',
+    noneFoundLabel: 'improper output handling',
+    queueFile: 'output_handling_exploitation_queue.json',
+    findingsFile: 'output_handling_findings.md',
+    renderEntry: (e) => renderOutputHandlingEntry(e as OutputHandlingFinding),
+  },
+  prompt_leakage: {
+    heading: 'System Prompt Leakage',
+    noneFoundLabel: 'system prompt leakage',
+    queueFile: 'prompt_leakage_exploitation_queue.json',
+    findingsFile: 'prompt_leakage_findings.md',
+    renderEntry: (e) => renderPromptLeakageEntry(e as PromptLeakageFinding),
+  },
+  vector_weaknesses: {
+    heading: 'Vector & Embedding Weaknesses',
+    noneFoundLabel: 'vector and embedding weaknesses',
+    queueFile: 'vector_weaknesses_exploitation_queue.json',
+    findingsFile: 'vector_weaknesses_findings.md',
+    renderEntry: (e) => renderVectorWeaknessesEntry(e as VectorWeaknessesFinding),
+  },
+  unbounded_consumption: {
+    heading: 'Unbounded Consumption',
+    noneFoundLabel: 'unbounded consumption',
+    queueFile: 'unbounded_consumption_exploitation_queue.json',
+    findingsFile: 'unbounded_consumption_findings.md',
+    renderEntry: (e) => renderUnboundedConsumptionEntry(e as UnboundedConsumptionFinding),
+  },
+  crypto_failures: {
+    heading: 'Cryptographic Failures',
+    noneFoundLabel: 'cryptographic failure',
+    queueFile: 'crypto_failures_exploitation_queue.json',
+    findingsFile: 'crypto_failures_findings.md',
+    renderEntry: (e) => renderCryptoFailuresEntry(e as CryptoFailuresFinding),
+  },
+  security_misconfiguration: {
+    heading: 'Security Misconfiguration',
+    noneFoundLabel: 'security misconfiguration',
+    queueFile: 'security_misconfiguration_exploitation_queue.json',
+    findingsFile: 'security_misconfiguration_findings.md',
+    renderEntry: (e) => renderSecurityMisconfigurationEntry(e as SecurityMisconfigurationFinding),
+  },
+  insecure_deserialization: {
+    heading: 'Insecure Deserialization',
+    noneFoundLabel: 'insecure deserialization',
+    queueFile: 'insecure_deserialization_exploitation_queue.json',
+    findingsFile: 'insecure_deserialization_findings.md',
+    renderEntry: (e) => renderInsecureDeserializationEntry(e as InsecureDeserializationFinding),
   },
 };
 

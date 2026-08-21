@@ -334,6 +334,76 @@ async function runRescanPipeline(
         runVuln: () => a.runAuthzVulnRescanAgent(rescanActivityInput),
         runExploit: () => a.runAuthzExploitRescanAgent(rescanActivityInput),
       },
+      {
+        vulnType: 'prompt_injection',
+        vulnAgent: 'prompt_injection-vuln-rescan',
+        exploitAgent: 'prompt_injection-exploit-rescan',
+        runVuln: () => a.runPromptInjectionVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runPromptInjectionExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'plugin_design',
+        vulnAgent: 'plugin_design-vuln-rescan',
+        exploitAgent: 'plugin_design-exploit-rescan',
+        runVuln: () => a.runPluginDesignVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runPluginDesignExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'info_disclosure',
+        vulnAgent: 'info_disclosure-vuln-rescan',
+        exploitAgent: 'info_disclosure-exploit-rescan',
+        runVuln: () => a.runInfoDisclosureVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runInfoDisclosureExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'output_handling',
+        vulnAgent: 'output_handling-vuln-rescan',
+        exploitAgent: 'output_handling-exploit-rescan',
+        runVuln: () => a.runOutputHandlingVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runOutputHandlingExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'prompt_leakage',
+        vulnAgent: 'prompt_leakage-vuln-rescan',
+        exploitAgent: 'prompt_leakage-exploit-rescan',
+        runVuln: () => a.runPromptLeakageVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runPromptLeakageExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'vector_weaknesses',
+        vulnAgent: 'vector_weaknesses-vuln-rescan',
+        exploitAgent: 'vector_weaknesses-exploit-rescan',
+        runVuln: () => a.runVectorWeaknessesVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runVectorWeaknessesExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'unbounded_consumption',
+        vulnAgent: 'unbounded_consumption-vuln-rescan',
+        exploitAgent: 'unbounded_consumption-exploit-rescan',
+        runVuln: () => a.runUnboundedConsumptionVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runUnboundedConsumptionExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'crypto_failures',
+        vulnAgent: 'crypto_failures-vuln-rescan',
+        exploitAgent: 'crypto_failures-exploit-rescan',
+        runVuln: () => a.runCryptoFailuresVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runCryptoFailuresExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'security_misconfiguration',
+        vulnAgent: 'security_misconfiguration-vuln-rescan',
+        exploitAgent: 'security_misconfiguration-exploit-rescan',
+        runVuln: () => a.runSecurityMisconfigurationVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runSecurityMisconfigurationExploitRescanAgent(rescanActivityInput),
+      },
+      {
+        vulnType: 'insecure_deserialization',
+        vulnAgent: 'insecure_deserialization-vuln-rescan',
+        exploitAgent: 'insecure_deserialization-exploit-rescan',
+        runVuln: () => a.runInsecureDeserializationVulnRescanAgent(rescanActivityInput),
+        runExploit: () => a.runInsecureDeserializationExploitRescanAgent(rescanActivityInput),
+      },
     ];
 
     const maxConcurrent = input.pipelineConfig?.max_concurrent_pipelines ?? 5;
@@ -638,6 +708,76 @@ export async function pentestPipeline(input: PipelineInput): Promise<PipelineSta
         runVuln: () => a.runAuthzVulnAgent(activityInput),
         runExploit: () => a.runAuthzExploitAgent(activityInput),
       },
+      {
+        vulnType: 'prompt_injection',
+        vulnAgent: 'prompt_injection-vuln',
+        exploitAgent: 'prompt_injection-exploit',
+        runVuln: () => a.runPromptInjectionVulnAgent(activityInput),
+        runExploit: () => a.runPromptInjectionExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'plugin_design',
+        vulnAgent: 'plugin_design-vuln',
+        exploitAgent: 'plugin_design-exploit',
+        runVuln: () => a.runPluginDesignVulnAgent(activityInput),
+        runExploit: () => a.runPluginDesignExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'info_disclosure',
+        vulnAgent: 'info_disclosure-vuln',
+        exploitAgent: 'info_disclosure-exploit',
+        runVuln: () => a.runInfoDisclosureVulnAgent(activityInput),
+        runExploit: () => a.runInfoDisclosureExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'output_handling',
+        vulnAgent: 'output_handling-vuln',
+        exploitAgent: 'output_handling-exploit',
+        runVuln: () => a.runOutputHandlingVulnAgent(activityInput),
+        runExploit: () => a.runOutputHandlingExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'prompt_leakage',
+        vulnAgent: 'prompt_leakage-vuln',
+        exploitAgent: 'prompt_leakage-exploit',
+        runVuln: () => a.runPromptLeakageVulnAgent(activityInput),
+        runExploit: () => a.runPromptLeakageExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'vector_weaknesses',
+        vulnAgent: 'vector_weaknesses-vuln',
+        exploitAgent: 'vector_weaknesses-exploit',
+        runVuln: () => a.runVectorWeaknessesVulnAgent(activityInput),
+        runExploit: () => a.runVectorWeaknessesExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'unbounded_consumption',
+        vulnAgent: 'unbounded_consumption-vuln',
+        exploitAgent: 'unbounded_consumption-exploit',
+        runVuln: () => a.runUnboundedConsumptionVulnAgent(activityInput),
+        runExploit: () => a.runUnboundedConsumptionExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'crypto_failures',
+        vulnAgent: 'crypto_failures-vuln',
+        exploitAgent: 'crypto_failures-exploit',
+        runVuln: () => a.runCryptoFailuresVulnAgent(activityInput),
+        runExploit: () => a.runCryptoFailuresExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'security_misconfiguration',
+        vulnAgent: 'security_misconfiguration-vuln',
+        exploitAgent: 'security_misconfiguration-exploit',
+        runVuln: () => a.runSecurityMisconfigurationVulnAgent(activityInput),
+        runExploit: () => a.runSecurityMisconfigurationExploitAgent(activityInput),
+      },
+      {
+        vulnType: 'insecure_deserialization',
+        vulnAgent: 'insecure_deserialization-vuln',
+        exploitAgent: 'insecure_deserialization-exploit',
+        runVuln: () => a.runInsecureDeserializationVulnAgent(activityInput),
+        runExploit: () => a.runInsecureDeserializationExploitAgent(activityInput),
+      },
     ];
   }
 
@@ -660,7 +800,6 @@ export async function pentestPipeline(input: PipelineInput): Promise<PipelineSta
       });
     }
   }
-
 
   try {
     // === Preflight Validation ===

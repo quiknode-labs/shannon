@@ -40,11 +40,31 @@ export function getAgentPrefix(description: string): string {
     'auth-vuln': '[Auth]',
     'authz-vuln': '[Authz]',
     'ssrf-vuln': '[SSRF]',
+    'prompt_injection-vuln': '[Prompt Injection]',
+    'plugin_design-vuln': '[Plugin Design]',
+    'info_disclosure-vuln': '[Info Disclosure]',
+    'output_handling-vuln': '[Output Handling]',
+    'prompt_leakage-vuln': '[Prompt Leakage]',
+    'vector_weaknesses-vuln': '[Vector Weaknesses]',
+    'unbounded_consumption-vuln': '[Unbounded Consumption]',
+    'crypto_failures-vuln': '[Crypto Failures]',
+    'security_misconfiguration-vuln': '[Security Misconfiguration]',
+    'insecure_deserialization-vuln': '[Insecure Deserialization]',
     'injection-exploit': '[Injection]',
     'xss-exploit': '[XSS]',
     'auth-exploit': '[Auth]',
     'authz-exploit': '[Authz]',
     'ssrf-exploit': '[SSRF]',
+    'prompt_injection-exploit': '[Prompt Injection]',
+    'plugin_design-exploit': '[Plugin Design]',
+    'info_disclosure-exploit': '[Info Disclosure]',
+    'output_handling-exploit': '[Output Handling]',
+    'prompt_leakage-exploit': '[Prompt Leakage]',
+    'vector_weaknesses-exploit': '[Vector Weaknesses]',
+    'unbounded_consumption-exploit': '[Unbounded Consumption]',
+    'crypto_failures-exploit': '[Crypto Failures]',
+    'security_misconfiguration-exploit': '[Security Misconfiguration]',
+    'insecure_deserialization-exploit': '[Insecure Deserialization]',
   };
 
   // First try to match by agent name directly
@@ -55,7 +75,20 @@ export function getAgentPrefix(description: string): string {
     }
   }
 
-  // Fallback to partial matches for backwards compatibility
+  // Fallback to partial matches for backwards compatibility.
+  // Underscore-named classes are checked before the short generic ones below
+  // ('prompt_injection' before 'injection', etc.) since each short name is a
+  // substring of one or more of the longer ones.
+  if (description.includes('prompt_injection')) return '[Prompt Injection]';
+  if (description.includes('plugin_design')) return '[Plugin Design]';
+  if (description.includes('info_disclosure')) return '[Info Disclosure]';
+  if (description.includes('output_handling')) return '[Output Handling]';
+  if (description.includes('prompt_leakage')) return '[Prompt Leakage]';
+  if (description.includes('vector_weaknesses')) return '[Vector Weaknesses]';
+  if (description.includes('unbounded_consumption')) return '[Unbounded Consumption]';
+  if (description.includes('crypto_failures')) return '[Crypto Failures]';
+  if (description.includes('security_misconfiguration')) return '[Security Misconfiguration]';
+  if (description.includes('insecure_deserialization')) return '[Insecure Deserialization]';
   if (description.includes('injection')) return '[Injection]';
   if (description.includes('xss')) return '[XSS]';
   if (description.includes('authz')) return '[Authz]'; // Check authz before auth

@@ -47,8 +47,8 @@ export function loadEnv(): void {
 /**
  * Build `-e KEY=VALUE` flags for docker run, only for set variables.
  */
-export function buildEnvFlags(): string[] {
-  const flags: string[] = ['-e', 'TEMPORAL_ADDRESS=shannon-temporal:7233'];
+export function buildEnvFlags(instanceId: string): string[] {
+  const flags: string[] = ['-e', `TEMPORAL_ADDRESS=shannon-temporal-${instanceId}:7233`];
 
   for (const key of FORWARD_VARS) {
     const value = process.env[key];

@@ -31,6 +31,56 @@ export async function assembleFinalReport(
     { name: 'Authentication', paths: ['auth_exploitation_evidence.md', 'auth_findings.md'], required: false },
     { name: 'SSRF', paths: ['ssrf_exploitation_evidence.md', 'ssrf_findings.md'], required: false },
     { name: 'Authorization', paths: ['authz_exploitation_evidence.md', 'authz_findings.md'], required: false },
+    {
+      name: 'Prompt Injection',
+      paths: ['prompt_injection_exploitation_evidence.md', 'prompt_injection_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Insecure Plugin Design',
+      paths: ['plugin_design_exploitation_evidence.md', 'plugin_design_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Sensitive Information Disclosure',
+      paths: ['info_disclosure_exploitation_evidence.md', 'info_disclosure_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Improper Output Handling',
+      paths: ['output_handling_exploitation_evidence.md', 'output_handling_findings.md'],
+      required: false,
+    },
+    {
+      name: 'System Prompt Leakage',
+      paths: ['prompt_leakage_exploitation_evidence.md', 'prompt_leakage_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Vector & Embedding Weaknesses',
+      paths: ['vector_weaknesses_exploitation_evidence.md', 'vector_weaknesses_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Unbounded Consumption',
+      paths: ['unbounded_consumption_exploitation_evidence.md', 'unbounded_consumption_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Cryptographic Failures',
+      paths: ['crypto_failures_exploitation_evidence.md', 'crypto_failures_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Security Misconfiguration',
+      paths: ['security_misconfiguration_exploitation_evidence.md', 'security_misconfiguration_findings.md'],
+      required: false,
+    },
+    {
+      name: 'Insecure Deserialization',
+      paths: ['insecure_deserialization_exploitation_evidence.md', 'insecure_deserialization_findings.md'],
+      required: false,
+    },
   ];
 
   const dir = deliverablesDir(sourceDir, deliverablesSubdir);

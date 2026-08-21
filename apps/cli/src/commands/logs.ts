@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { watch } from 'chokidar';
+import { getInstanceId, getTemporalWebUiUrl } from '../docker.js';
 import { getWorkspacesDir } from '../home.js';
 
 // Match the exact line the worker writes — anchored to prevent false positives from agent output
@@ -54,7 +55,7 @@ function resolveLogFile(workspaceId: string): string {
   console.error("  - Workflow hasn't started yet");
   console.error('  - Workspace ID is incorrect');
   console.error('');
-  console.error('Check the Temporal Web UI at http://localhost:8233 for workflow details');
+  console.error(`Check the Temporal Web UI at ${getTemporalWebUiUrl(getInstanceId())} for workflow details`);
   process.exit(1);
 }
 

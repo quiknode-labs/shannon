@@ -55,6 +55,56 @@ const VULN_SUMMARY_SPECS: Record<VulnClass, VulnSummarySpec> = {
     evidenceSection: 'SSRF Exploitation Evidence',
     noneFoundLabel: 'SSRF',
   },
+  prompt_injection: {
+    heading: 'Prompt Injection Vulnerabilities',
+    evidenceSection: 'Prompt Injection Exploitation Evidence',
+    noneFoundLabel: 'prompt injection',
+  },
+  plugin_design: {
+    heading: 'Insecure Plugin Design / Excessive Agency Vulnerabilities',
+    evidenceSection: 'Plugin Design Exploitation Evidence',
+    noneFoundLabel: 'insecure plugin design',
+  },
+  info_disclosure: {
+    heading: 'Sensitive Information Disclosure Vulnerabilities',
+    evidenceSection: 'Info Disclosure Exploitation Evidence',
+    noneFoundLabel: 'sensitive information disclosure',
+  },
+  output_handling: {
+    heading: 'Improper Output Handling Vulnerabilities',
+    evidenceSection: 'Output Handling Exploitation Evidence',
+    noneFoundLabel: 'improper output handling',
+  },
+  prompt_leakage: {
+    heading: 'System Prompt Leakage Vulnerabilities',
+    evidenceSection: 'Prompt Leakage Exploitation Evidence',
+    noneFoundLabel: 'system prompt leakage',
+  },
+  vector_weaknesses: {
+    heading: 'Vector & Embedding Weakness Vulnerabilities',
+    evidenceSection: 'Vector Weaknesses Exploitation Evidence',
+    noneFoundLabel: 'vector and embedding weaknesses',
+  },
+  unbounded_consumption: {
+    heading: 'Unbounded Consumption Vulnerabilities',
+    evidenceSection: 'Unbounded Consumption Exploitation Evidence',
+    noneFoundLabel: 'unbounded consumption',
+  },
+  crypto_failures: {
+    heading: 'Cryptographic Failures',
+    evidenceSection: 'Crypto Failures Exploitation Evidence',
+    noneFoundLabel: 'cryptographic failure',
+  },
+  security_misconfiguration: {
+    heading: 'Security Misconfiguration Vulnerabilities',
+    evidenceSection: 'Security Misconfiguration Exploitation Evidence',
+    noneFoundLabel: 'security misconfiguration',
+  },
+  insecure_deserialization: {
+    heading: 'Insecure Deserialization Vulnerabilities',
+    evidenceSection: 'Insecure Deserialization Exploitation Evidence',
+    noneFoundLabel: 'insecure deserialization',
+  },
 };
 
 function renderVulnSummarySubsections(selected: readonly VulnClass[]): string {
@@ -340,7 +390,9 @@ async function interpolateVariables(
     const vulnClasses = config?.vuln_classes ?? [];
     result = result.replace(
       /{{VULN_CLASSES_TESTED}}/g,
-      vulnClasses.length > 0 ? vulnClasses.join(', ') : 'injection, xss, auth, authz, ssrf',
+      vulnClasses.length > 0
+        ? vulnClasses.join(', ')
+        : 'injection, xss, auth, authz, ssrf, prompt_injection, plugin_design, info_disclosure, output_handling, prompt_leakage, vector_weaknesses, unbounded_consumption, crypto_failures, security_misconfiguration, insecure_deserialization',
     );
     result = result.replace(/{{VULN_SUMMARY_SUBSECTIONS}}/g, renderVulnSummarySubsections(vulnClasses));
 
