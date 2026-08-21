@@ -117,7 +117,7 @@ function extractQueueEvidence(f: RawFinding): string | null {
   return parts.length ? parts.join(' ') : null;
 }
 
-const REPORT_VERDICT_HEADER = /^###\s+([A-Z]+-VULN-\d+)\s*[—-]+\s*(FIXED|STILL_VULNERABLE|INCONCLUSIVE)\b/i;
+const REPORT_VERDICT_HEADER = /^###\s+([A-Z_]+-VULN-\d+)\s*[—-]+\s*(FIXED|STILL_VULNERABLE|INCONCLUSIVE)\b/i;
 const REPORT_EVIDENCE_BLOCK = /\*\*Evidence:\*\*\s*\n([\s\S]*?)(?:\n---|\n##|$)/i;
 
 /**
@@ -132,7 +132,7 @@ const REPORT_EVIDENCE_BLOCK = /\*\*Evidence:\*\*\s*\n([\s\S]*?)(?:\n---|\n##|$)/
  */
 function parseReportVerdicts(reportMd: string): Map<string, { verdict: RescanVerdict; evidence: string }> {
   const results = new Map<string, { verdict: RescanVerdict; evidence: string }>();
-  const sections = reportMd.split(/\n(?=###\s+[A-Z]+-VULN-\d+\s)/);
+  const sections = reportMd.split(/\n(?=###\s+[A-Z_]+-VULN-\d+\s)/);
   for (const section of sections) {
     const header = REPORT_VERDICT_HEADER.exec(section);
     if (!header?.[1] || !header[2]) continue;

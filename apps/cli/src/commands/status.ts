@@ -2,7 +2,7 @@
  * `shannon status` command — show running workers and Temporal health.
  */
 
-import { getInstanceId, isTemporalReady, listRunningWorkers } from '../docker.js';
+import { getInstanceId, getTemporalWebUiUrl, isTemporalReady, listRunningWorkers } from '../docker.js';
 
 export function status(): void {
   const instanceId = getInstanceId();
@@ -11,7 +11,7 @@ export function status(): void {
   const temporalUp = isTemporalReady(instanceId);
   console.log(`Temporal: ${temporalUp ? 'running' : 'not running'}`);
   if (temporalUp) {
-    console.log('  Web UI: http://localhost:8233');
+    console.log(`  Web UI: ${getTemporalWebUiUrl(instanceId)}`);
   }
   console.log('');
 

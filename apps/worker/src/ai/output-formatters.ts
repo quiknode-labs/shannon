@@ -75,12 +75,10 @@ export function getAgentPrefix(description: string): string {
     }
   }
 
-  // Fallback to partial matches for backwards compatibility
-  if (description.includes('injection')) return '[Injection]';
-  if (description.includes('xss')) return '[XSS]';
-  if (description.includes('authz')) return '[Authz]'; // Check authz before auth
-  if (description.includes('auth')) return '[Auth]';
-  if (description.includes('ssrf')) return '[SSRF]';
+  // Fallback to partial matches for backwards compatibility.
+  // Underscore-named classes are checked before the short generic ones below
+  // ('prompt_injection' before 'injection', etc.) since each short name is a
+  // substring of one or more of the longer ones.
   if (description.includes('prompt_injection')) return '[Prompt Injection]';
   if (description.includes('plugin_design')) return '[Plugin Design]';
   if (description.includes('info_disclosure')) return '[Info Disclosure]';
@@ -88,6 +86,14 @@ export function getAgentPrefix(description: string): string {
   if (description.includes('prompt_leakage')) return '[Prompt Leakage]';
   if (description.includes('vector_weaknesses')) return '[Vector Weaknesses]';
   if (description.includes('unbounded_consumption')) return '[Unbounded Consumption]';
+  if (description.includes('crypto_failures')) return '[Crypto Failures]';
+  if (description.includes('security_misconfiguration')) return '[Security Misconfiguration]';
+  if (description.includes('insecure_deserialization')) return '[Insecure Deserialization]';
+  if (description.includes('injection')) return '[Injection]';
+  if (description.includes('xss')) return '[XSS]';
+  if (description.includes('authz')) return '[Authz]'; // Check authz before auth
+  if (description.includes('auth')) return '[Auth]';
+  if (description.includes('ssrf')) return '[SSRF]';
 
   return '[Agent]';
 }

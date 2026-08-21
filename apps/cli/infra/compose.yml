@@ -8,8 +8,8 @@ services:
     container_name: shannon-temporal-${SHANNON_INSTANCE_ID:?SHANNON_INSTANCE_ID is required}
     command: ["server", "start-dev", "--db-filename", "/home/temporal/temporal.db", "--ip", "0.0.0.0"]
     ports:
-      - "127.0.0.1:7233:7233"
-      - "127.0.0.1:8233:8233"
+      - "127.0.0.1::7233"   # gRPC — ephemeral host port, so multiple instances can coexist
+      - "127.0.0.1::8233"   # Web UI (built-in) — ephemeral host port
     volumes:
       - temporal-data:/home/temporal
     healthcheck:

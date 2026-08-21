@@ -12,6 +12,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
+import { getRepoDir } from './home.js';
 import { getMode } from './mode.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -25,8 +26,7 @@ export function getWorkerImage(version: string): string {
 
 function getComposeFile(): string {
   if (getMode() === 'local') {
-    const repoDir = process.env.SHANNON_REPO_DIR ?? process.cwd();
-    return path.resolve(repoDir, 'docker-compose.yml');
+    return path.resolve(getRepoDir(), 'docker-compose.yml');
   }
   return path.resolve(__dirname, '..', 'infra', 'compose.yml');
 }
@@ -65,7 +65,7 @@ function runOutput(cmd: string, args: string[]): string {
  * assumes a single shared install per user — that hasn't changed.
  */
 export function getInstanceId(): string {
-  const root = getMode() === 'local' ? path.resolve('.') : path.join(os.homedir(), '.shannon');
+  const root = getMode() === 'local' ? path.resolve(getRepoDir()) : path.join(os.homedir(), '.shannon');
   return crypto.createHash('sha256').update(root).digest('hex').slice(0, 8);
 }
 
@@ -86,6 +86,25 @@ export function networkName(instanceId: string): string {
  */
 export function composeProjectName(instanceId: string): string {
   return `shannon-${instanceId}`;
+}
+
+/**
+ * Resolve the host port Docker assigned for one of the Temporal container's
+ * published ports. Compose maps these to ephemeral host ports (rather than a
+ * fixed 7233/8233) so multiple instances can run side by side without a bind
+ * conflict — this looks up whatever port a given instance actually landed on.
+ * Returns null if the container isn't up or the port can't be resolved.
+ */
+export function getTemporalHostPort(instanceId: string, containerPort: number): string | null {
+  const output = runOutput('docker', ['port', temporalContainerName(instanceId), `${containerPort}/tcp`]);
+  const match = output.match(/:(\d+)\s*$/);
+  return match?.[1] ?? null;
+}
+
+/** Temporal Web UI URL for this instance, falling back to the default port if it can't be resolved. */
+export function getTemporalWebUiUrl(instanceId: string): string {
+  const port = getTemporalHostPort(instanceId, 8233) ?? '8233';
+  return `http://localhost:${port}`;
 }
 
 /**
