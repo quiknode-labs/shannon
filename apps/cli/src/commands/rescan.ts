@@ -20,6 +20,7 @@ export interface RescanArgs {
   repo: string;
   findingsFile: string;
   output?: string;
+  skipGitCheck: boolean;
   debug: boolean;
   version: string;
 }
@@ -148,6 +149,7 @@ export async function rescan(args: RescanArgs): Promise<void> {
     ...(hasCredentials && { credentials: credentialsPath }),
     ...(promptsDir && { promptsDir }),
     ...(outputDir && { outputDir }),
+    ...(args.skipGitCheck && { skipGitCheck: true }),
     ...(args.debug && { debug: true }),
   });
 

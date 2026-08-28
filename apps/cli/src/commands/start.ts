@@ -30,6 +30,7 @@ export interface StartArgs {
   workspace?: string;
   output?: string;
   pipelineTesting: boolean;
+  skipGitCheck: boolean;
   debug: boolean;
   version: string;
 }
@@ -124,6 +125,7 @@ export async function start(args: StartArgs): Promise<void> {
     ...(outputDir && { outputDir }),
     workspace,
     ...(args.pipelineTesting && { pipelineTesting: true }),
+    ...(args.skipGitCheck && { skipGitCheck: true }),
     ...(args.debug && { debug: true }),
   });
 

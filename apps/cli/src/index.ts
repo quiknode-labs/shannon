@@ -92,6 +92,7 @@ Options for 'start':
   -o, --output <path>       Copy deliverables to this directory after run
   -w, --workspace <name>    Named workspace (auto-resumes if exists)
       --pipeline-testing    Use minimal prompts for fast testing
+      --skip-git-check      Skip .git directory validation (e.g. multi-repo target dir)
       --debug               Preserve worker container after exit for log inspection
 
 Examples:
@@ -118,6 +119,7 @@ interface ParsedStartArgs {
   workspace?: string;
   output?: string;
   pipelineTesting: boolean;
+  skipGitCheck: boolean;
   debug: boolean;
 }
 
@@ -128,6 +130,7 @@ function parseStartArgs(argv: string[]): ParsedStartArgs {
   let workspace: string | undefined;
   let output: string | undefined;
   let pipelineTesting = false;
+  let skipGitCheck = false;
   let debug = false;
 
   for (let i = 0; i < argv.length; i++) {
@@ -173,6 +176,9 @@ function parseStartArgs(argv: string[]): ParsedStartArgs {
       case '--pipeline-testing':
         pipelineTesting = true;
         break;
+      case '--skip-git-check':
+        skipGitCheck = true;
+        break;
       case '--debug':
         debug = true;
         break;
@@ -193,6 +199,7 @@ function parseStartArgs(argv: string[]): ParsedStartArgs {
     url,
     repo,
     pipelineTesting,
+    skipGitCheck,
     debug,
     ...(config && { config }),
     ...(workspace && { workspace }),
@@ -205,6 +212,7 @@ interface ParsedRescanArgs {
   repo: string;
   findingsFile: string;
   output?: string;
+  skipGitCheck: boolean;
   debug: boolean;
 }
 
@@ -213,6 +221,7 @@ function parseRescanArgs(argv: string[]): ParsedRescanArgs {
   let repo = '';
   let findingsFile = '';
   let output: string | undefined;
+  let skipGitCheck = false;
   let debug = false;
 
   for (let i = 0; i < argv.length; i++) {
@@ -248,6 +257,9 @@ function parseRescanArgs(argv: string[]): ParsedRescanArgs {
           i++;
         }
         break;
+      case '--skip-git-check':
+        skipGitCheck = true;
+        break;
       case '--debug':
         debug = true;
         break;
@@ -269,6 +281,7 @@ function parseRescanArgs(argv: string[]): ParsedRescanArgs {
     sourceWorkspace,
     repo,
     findingsFile,
+    skipGitCheck,
     debug,
     ...(output && { output }),
   };
