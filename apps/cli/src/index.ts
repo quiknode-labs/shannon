@@ -212,6 +212,7 @@ interface ParsedRescanArgs {
   repo: string;
   findingsFile: string;
   output?: string;
+  skipGitCheck: boolean;
   debug: boolean;
 }
 
@@ -220,6 +221,7 @@ function parseRescanArgs(argv: string[]): ParsedRescanArgs {
   let repo = '';
   let findingsFile = '';
   let output: string | undefined;
+  let skipGitCheck = false;
   let debug = false;
 
   for (let i = 0; i < argv.length; i++) {
@@ -255,6 +257,9 @@ function parseRescanArgs(argv: string[]): ParsedRescanArgs {
           i++;
         }
         break;
+      case '--skip-git-check':
+        skipGitCheck = true;
+        break;
       case '--debug':
         debug = true;
         break;
@@ -276,6 +281,7 @@ function parseRescanArgs(argv: string[]): ParsedRescanArgs {
     sourceWorkspace,
     repo,
     findingsFile,
+    skipGitCheck,
     debug,
     ...(output && { output }),
   };
