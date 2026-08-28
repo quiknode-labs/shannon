@@ -299,6 +299,7 @@ export interface WorkerOptions {
   outputDir?: string;
   workspace: string;
   pipelineTesting?: boolean;
+  skipGitCheck?: boolean;
   debug?: boolean;
   rescanFindingsFile?: string;
   sourceWorkspace?: string;
@@ -377,6 +378,10 @@ export function spawnWorker(opts: WorkerOptions): ChildProcess {
   args.push('--workspace', opts.workspace);
   if (opts.pipelineTesting) {
     args.push('--pipeline-testing');
+  }
+
+  if (opts.skipGitCheck) {
+    args.push('--skip-git-check');
   }
 
   if (opts.rescanFindingsFile) {

@@ -56,6 +56,7 @@ interface CliArgs {
   configPath?: string;
   outputPath?: string;
   pipelineTestingMode: boolean;
+  skipGitCheck: boolean;
   resumeFromWorkspace?: string;
   rescanFindingsFile?: string;
   sourceWorkspace?: string;
@@ -70,7 +71,8 @@ function showUsage(): void {
   console.log('  --task-queue <name>    Task queue name (required)');
   console.log('  --config <path>        Configuration file path');
   console.log('  --workspace <name>     Resume from existing workspace');
-  console.log('  --pipeline-testing     Use minimal prompts for fast testing\n');
+  console.log('  --pipeline-testing     Use minimal prompts for fast testing');
+  console.log('  --skip-git-check       Skip .git directory validation in preflight\n');
 }
 
 function parseCliArgs(argv: string[]): CliArgs {
@@ -85,6 +87,7 @@ function parseCliArgs(argv: string[]): CliArgs {
   let configPath: string | undefined;
   let outputPath: string | undefined;
   let pipelineTestingMode = false;
+  let skipGitCheck = false;
   let resumeFromWorkspace: string | undefined;
   let rescanFindingsJson: string | undefined;
   let sourceWorkspace: string | undefined;
@@ -129,6 +132,8 @@ function parseCliArgs(argv: string[]): CliArgs {
       }
     } else if (arg === '--pipeline-testing') {
       pipelineTestingMode = true;
+    } else if (arg === '--skip-git-check') {
+      skipGitCheck = true;
     } else if (arg && !arg.startsWith('-')) {
       if (!webUrl) {
         webUrl = arg;
@@ -155,6 +160,7 @@ function parseCliArgs(argv: string[]): CliArgs {
     repoPath,
     taskQueue,
     pipelineTestingMode,
+    skipGitCheck,
     ...(configPath && { configPath }),
     ...(outputPath && { outputPath }),
     ...(resumeFromWorkspace && { resumeFromWorkspace }),
@@ -345,6 +351,7 @@ function buildPipelineInput(
     sessionId: workspace.sessionId,
     ...(args.configPath && { configPath: args.configPath }),
     ...(args.pipelineTestingMode && { pipelineTestingMode: args.pipelineTestingMode }),
+    ...(args.skipGitCheck && { skipGitCheck: args.skipGitCheck }),
     ...(workspace.isResume && args.resumeFromWorkspace && { resumeFromWorkspace: args.resumeFromWorkspace }),
     ...(workspace.terminatedWorkflows.length > 0 && { terminatedWorkflows: workspace.terminatedWorkflows }),
     ...(Object.keys(orchestration.pipelineConfig).length > 0 && { pipelineConfig: orchestration.pipelineConfig }),

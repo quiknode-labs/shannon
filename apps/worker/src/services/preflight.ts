@@ -173,7 +173,10 @@ async function validateConfig(configPath: string, logger: ActivityLogger): Promi
 
 // === code_path Existence Validation ===
 
-const CODE_PATH_IGNORE = ['.git/**', '.shannon/**'];
+// Recursive globs (`**/`) so nested repo roots (e.g. a multi-repo target dir with
+// one .git per sibling subdirectory) don't leak their .git/.shannon internals into
+// code_path matches — a pattern anchored only at repoPath's own root would miss those.
+const CODE_PATH_IGNORE = ['**/.git/**', '**/.shannon/**'];
 
 async function patternMatchesAny(repoPath: string, pattern: string): Promise<boolean> {
   const stream = glob.globbyStream(pattern, {
