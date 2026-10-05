@@ -382,6 +382,7 @@ const validateConfig = (config: Config): void => {
   }
 
   performSecurityValidation(config);
+  validateCodeOnly(config);
 
   const hasAnySteering =
     !!config.rules ||
@@ -389,6 +390,7 @@ const validateConfig = (config: Config): void => {
     !!config.description ||
     !!config.vuln_classes ||
     config.exploit !== undefined ||
+    config.code_only !== undefined ||
     !!config.report ||
     !!config.rules_of_engagement;
   if (!hasAnySteering) {
@@ -663,6 +665,31 @@ const sanitizeRule = (rule: Rule): Rule => {
   };
 };
 
+// Code-only means there is no running application: anything that needs one
+// is a contradiction, and is rejected here (fail closed) rather than silently
+// ignored — Shannon is used outside Coral too.
+const validateCodeOnly = (config: Config): void => {
+  if (config.code_only !== 'true') return;
+  if (config.exploit === 'true') {
+    throw new PentestError(
+      'code_only: "true" cannot be combined with exploit: "true" — there is no live target to exploit',
+      'config',
+      false,
+      {},
+      ErrorCode.CONFIG_VALIDATION_FAILED,
+    );
+  }
+  if (config.authentication) {
+    throw new PentestError(
+      'code_only: "true" cannot be combined with an authentication block — there is no live target to log in to',
+      'config',
+      false,
+      {},
+      ErrorCode.CONFIG_VALIDATION_FAILED,
+    );
+  }
+};
+
 export const distributeConfig = (config: Config | null): DistributedConfig => {
   const avoid = config?.rules?.avoid || [];
   const focus = config?.rules?.focus || [];
@@ -672,7 +699,10 @@ export const distributeConfig = (config: Config | null): DistributedConfig => {
   const vuln_classes =
     config?.vuln_classes && config.vuln_classes.length > 0 ? [...config.vuln_classes] : [...ALL_VULN_CLASSES];
 
-  const exploit = config?.exploit !== undefined ? config.exploit === 'true' : true;
+  const code_only = config?.code_only === 'true';
+  // Code-only has nothing to exploit; validateCodeOnly() already rejected an
+  // explicit exploit: "true", so an unset value defaults to off here.
+  const exploit = code_only ? false : config?.exploit !== undefined ? config.exploit === 'true' : true;
 
   const report = {
     ...(config?.report?.min_severity && { min_severity: config.report.min_severity }),
@@ -689,6 +719,7 @@ export const distributeConfig = (config: Config | null): DistributedConfig => {
     description,
     vuln_classes,
     exploit,
+    code_only,
     report,
     rules_of_engagement,
   };

@@ -16,7 +16,7 @@ import { build } from './commands/build.js';
 import { logs } from './commands/logs.js';
 import { rescan } from './commands/rescan.js';
 import { setup } from './commands/setup.js';
-import { start } from './commands/start.js';
+import { CODE_ONLY_TARGET_URL, start } from './commands/start.js';
 import { status } from './commands/status.js';
 import { stop } from './commands/stop.js';
 import { uninstall } from './commands/uninstall.js';
@@ -86,7 +86,8 @@ Usage:${
   ${prefix} help                                         Show this help
 
 Options for 'start':
-  -u, --url <url>           Target URL (required)
+  -u, --url <url>           Target URL (required unless --code-only)
+      --code-only           Source-code-only review: no target URL; the config must set code_only: "true"
   -r, --repo <path>         Repository path${mode === 'local' ? ' or bare name' : ''} (required)
   -c, --config <path>       Configuration file (YAML)
   -o, --output <path>       Copy deliverables to this directory after run
@@ -132,6 +133,7 @@ function parseStartArgs(argv: string[]): ParsedStartArgs {
   let pipelineTesting = false;
   let skipGitCheck = false;
   let debug = false;
+  let codeOnly = false;
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -182,12 +184,23 @@ function parseStartArgs(argv: string[]): ParsedStartArgs {
       case '--debug':
         debug = true;
         break;
+      case '--code-only':
+        codeOnly = true;
+        break;
       default:
         console.error(`Unknown option: ${arg}`);
         console.error(`Run "${getMode() === 'local' ? './shannon' : 'npx @keygraph/shannon'} help" for usage`);
         process.exit(1);
     }
   }
+
+  // Code-only: a URL alongside it is a contradiction, not a hint — reject it
+  // rather than guess which one the caller meant.
+  if (codeOnly && url) {
+    console.error('ERROR: --code-only scans have no target; do not pass --url');
+    process.exit(1);
+  }
+  if (codeOnly) url = CODE_ONLY_TARGET_URL;
 
   if (!url || !repo) {
     console.error('ERROR: --url and --repo are required');

@@ -31,7 +31,7 @@ import { glob } from 'zx';
 import { resolveModel } from '../ai/models.js';
 import { parseConfig } from '../config-parser.js';
 import type { ActivityLogger } from '../types/activity-logger.js';
-import type { Config, Rule } from '../types/config.js';
+import { CODE_ONLY_TARGET_URL, type Config, type Rule } from '../types/config.js';
 import { ErrorCode } from '../types/errors.js';
 import { err, ok, type Result } from '../types/result.js';
 import { isRetryableError, PentestError } from './error-handling.js';
@@ -643,10 +643,32 @@ export async function runPreflightChecks(
     return credResult;
   }
 
-  // 5. Target URL reachability check (cheap — 1 HTTP round-trip)
-  const urlResult = await validateTargetUrl(targetUrl, logger);
-  if (!urlResult.ok) {
-    return urlResult;
+  // 5. Target URL reachability check (cheap — 1 HTTP round-trip).
+  // A code-only run has no target by definition. The sentinel URL and the
+  // config flag must agree in both directions, so an accidentally blank or
+  // placeholder URL can never silently downgrade a live scan to code-only.
+  const codeOnly = parsedConfig?.code_only === 'true';
+  const isSentinel = targetUrl === CODE_ONLY_TARGET_URL;
+  if (codeOnly !== isSentinel) {
+    return err(
+      new PentestError(
+        codeOnly
+          ? `code_only: "true" requires the --code-only flag (no target URL), but got target ${targetUrl}`
+          : `Target ${CODE_ONLY_TARGET_URL} is only valid with code_only: "true" in the config`,
+        'config',
+        false,
+        { targetUrl },
+        ErrorCode.CONFIG_VALIDATION_FAILED,
+      ),
+    );
+  }
+  if (codeOnly) {
+    logger.info('Code-only run — skipping target URL reachability check');
+  } else {
+    const urlResult = await validateTargetUrl(targetUrl, logger);
+    if (!urlResult.ok) {
+      return urlResult;
+    }
   }
 
   logger.info('All preflight checks passed');

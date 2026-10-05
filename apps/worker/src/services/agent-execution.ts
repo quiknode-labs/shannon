@@ -120,7 +120,10 @@ export class AgentExecutionService {
     const distributedConfig = configResult.value;
 
     // 2. Load prompt
-    const promptTemplate = AGENTS[agentName].promptTemplate;
+    // Code-only runs swap the recon prompt for its static variant (no
+    // browser exploration step); same deliverable shape either way.
+    const baseTemplate = AGENTS[agentName].promptTemplate;
+    const promptTemplate = distributedConfig?.code_only && baseTemplate === 'recon' ? 'recon-code' : baseTemplate;
     let prompt: string;
     try {
       prompt = await loadPrompt(

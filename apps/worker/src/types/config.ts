@@ -93,6 +93,15 @@ export interface Authentication {
   success_condition: SuccessCondition;
 }
 
+/**
+ * Placeholder passed as the target URL for a code-only run (CLI --code-only).
+ * URL-shaped so every call site that structurally needs a URL keeps working,
+ * but never dereferenced: preflight requires it to pair with code_only: "true"
+ * and skips the reachability check, and prompts render it as "no live target".
+ * Mirrored in apps/cli/src/commands/start.ts — keep both in sync.
+ */
+export const CODE_ONLY_TARGET_URL = 'code-only://no-live-target';
+
 export interface Config {
   rules?: Rules;
   authentication?: Authentication;
@@ -100,6 +109,10 @@ export interface Config {
   description?: string;
   vuln_classes?: VulnClass[];
   exploit?: 'true' | 'false';
+  // Source-code-only review: no live target exists. Skips the target
+  // reachability preflight, uses the static recon prompt, and forbids
+  // exploitation and authentication (both need a running app).
+  code_only?: 'true' | 'false';
   report?: ReportConfig;
   rules_of_engagement?: string;
 }
@@ -118,6 +131,7 @@ export interface DistributedConfig {
   description: string;
   vuln_classes: VulnClass[];
   exploit: boolean;
+  code_only: boolean;
   report: ReportConfig;
   rules_of_engagement: string;
 }

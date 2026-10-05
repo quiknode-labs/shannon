@@ -269,6 +269,22 @@ async function buildLoginInstructions(
   }
 }
 
+// Prepended to every agent prompt on a code-only run (config code_only:
+// "true"). Agent prompts are written for live testing and several tell the
+// agent to browse or curl the target; this states up front that none of that
+// applies, so behavior doesn't depend on each prompt being individually
+// rewritten. recon has a dedicated static variant (recon-code.txt) on top.
+const CODE_ONLY_PREAMBLE = `<code_only_mode>
+This is a SOURCE-CODE-ONLY security review. No running instance of the application exists for this assessment.
+
+- Do NOT use playwright-cli, curl, or any other network request against the application — there is nothing to reach. Any instruction later in this prompt to browse, navigate to, log in to, or send requests to the target does not apply to this run.
+- Derive every finding from static analysis of the repository: trace attacker-controlled input (source) to the dangerous operation (sink) and cite exact file paths and line numbers as evidence.
+- Where a finding would normally be confirmed against the live application, report it with the confidence your code evidence supports and state explicitly that it was not dynamically verified.
+- Interpret "network-accessible attack surface" as the routes, handlers, and entry points the code would expose once deployed.
+</code_only_mode>
+
+`;
+
 // Pure function: Process @include() directives
 async function processIncludes(content: string, baseDir: string): Promise<string> {
   const includeRegex = /@include\(([^)]+)\)/g;
@@ -340,7 +356,12 @@ async function interpolateVariables(
     }
 
     let result = template
-      .replace(/{{WEB_URL}}/g, variables.webUrl)
+      .replace(
+        /{{WEB_URL}}/g,
+        config?.code_only
+          ? 'None — source-code-only review (no live target; do not attempt network access to the application)'
+          : variables.webUrl,
+      )
       .replace(/{{REPO_PATH}}/g, variables.repoPath)
       .replace(/{{PLAYWRIGHT_SESSION}}/g, variables.PLAYWRIGHT_SESSION || 'agent1')
       .replace(/{{AUTH_CONTEXT}}/g, buildAuthContext(config))
@@ -365,6 +386,10 @@ async function interpolateVariables(
       result = result
         .replace(/{{CODE_RULES_AVOID}}/g, renderCodePathRules(config?.avoid ?? []))
         .replace(/{{CODE_RULES_FOCUS}}/g, renderCodePathRules(config?.focus ?? []));
+    }
+
+    if (config?.code_only) {
+      result = CODE_ONLY_PREAMBLE + result;
     }
 
     const roe = config?.rules_of_engagement?.trim() ?? '';

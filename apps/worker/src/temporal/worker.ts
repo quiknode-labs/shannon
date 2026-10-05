@@ -322,6 +322,9 @@ async function loadOrchestrationConfig(configPath: string | undefined): Promise<
       pipelineConfig,
       ...(config.vuln_classes && config.vuln_classes.length > 0 && { vulnClasses: [...config.vuln_classes] }),
       ...(config.exploit !== undefined && { exploit: config.exploit === 'true' }),
+      // Code-only has nothing to exploit (config validation already rejects
+      // an explicit exploit: "true" alongside it).
+      ...(config.code_only === 'true' && { exploit: false }),
     };
   } catch {
     return { pipelineConfig: {} };

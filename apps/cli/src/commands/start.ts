@@ -23,6 +23,10 @@ import { isLocal } from '../mode.js';
 import { resolveConfig, resolveRepo } from '../paths.js';
 import { displaySplash } from '../splash.js';
 
+// Mirrors CODE_ONLY_TARGET_URL in apps/worker/src/types/config.ts — the
+// worker's preflight requires this exact value to pair with code_only: "true".
+export const CODE_ONLY_TARGET_URL = 'code-only://no-live-target';
+
 export interface StartArgs {
   url: string;
   repo: string;
@@ -242,7 +246,7 @@ function printInfo(
   const reportsPath = path.join(workspacesDir, workspace);
   const webUiUrl = getTemporalWebUiUrl(instanceId);
 
-  console.log(`  Target:     ${args.url}`);
+  console.log(`  Target:     ${args.url === CODE_ONLY_TARGET_URL ? '(none — source-code-only review)' : args.url}`);
   console.log(`  Repository: ${repoPath}`);
   console.log(`  Workspace:  ${workspace}`);
   if (args.config) {
