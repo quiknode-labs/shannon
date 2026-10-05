@@ -36,7 +36,7 @@ import dotenv from 'dotenv';
 import { sanitizeHostname } from '../audit/utils.js';
 import { parseConfig } from '../config-parser.js';
 import { deliverablesDir } from '../paths.js';
-import type { PipelineConfig, VulnClass } from '../types/config.js';
+import { CODE_ONLY_TARGET_URL, type PipelineConfig, type VulnClass } from '../types/config.js';
 import { fileExists, readJson } from '../utils/file-io.js';
 import * as activities from './activities.js';
 import type { PipelineInput, PipelineProgress, PipelineState, RescanFinding } from './shared.js';
@@ -361,7 +361,10 @@ function buildPipelineInput(
     ...(Object.keys(orchestration.pipelineConfig).length > 0 && { pipelineConfig: orchestration.pipelineConfig }),
     ...(orchestration.vulnClasses && { vulnClasses: orchestration.vulnClasses }),
     ...(orchestration.exploit !== undefined && { exploit: orchestration.exploit }),
-    ...(orchestration.codeOnly && { codeOnly: true }),
+    // Rescans run without a config file but inherit the source workspace's
+    // URL from session.json; the sentinel only ever gets there through a
+    // preflight-validated code-only start, so it identifies one on its own.
+    ...((orchestration.codeOnly || args.webUrl === CODE_ONLY_TARGET_URL) && { codeOnly: true }),
     ...(rescanFindings &&
       rescanFindings.length > 0 && {
         rescanMode: true,

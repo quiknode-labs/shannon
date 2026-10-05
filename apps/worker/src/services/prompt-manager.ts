@@ -8,7 +8,14 @@ import { fs, path } from 'zx';
 import { PROMPTS_DIR } from '../paths.js';
 import { PLAYWRIGHT_SESSION_MAPPING } from '../session-manager.js';
 import type { ActivityLogger } from '../types/activity-logger.js';
-import type { Authentication, DistributedConfig, ReportConfig, Rule, VulnClass } from '../types/config.js';
+import {
+  type Authentication,
+  CODE_ONLY_TARGET_URL,
+  type DistributedConfig,
+  type ReportConfig,
+  type Rule,
+  type VulnClass,
+} from '../types/config.js';
 import { isGlobPattern } from '../utils/glob.js';
 import { handlePromptError, PentestError } from './error-handling.js';
 
@@ -355,10 +362,14 @@ async function interpolateVariables(
       });
     }
 
+    // Rescans carry no config, only the source run's URL — the sentinel marks
+    // a code-only run on its own (see CODE_ONLY_TARGET_URL).
+    const codeOnly = Boolean(config?.code_only) || variables.webUrl === CODE_ONLY_TARGET_URL;
+
     let result = template
       .replace(
         /{{WEB_URL}}/g,
-        config?.code_only
+        codeOnly
           ? 'None — source-code-only review (no live target; do not attempt network access to the application)'
           : variables.webUrl,
       )
@@ -388,7 +399,7 @@ async function interpolateVariables(
         .replace(/{{CODE_RULES_FOCUS}}/g, renderCodePathRules(config?.focus ?? []));
     }
 
-    if (config?.code_only) {
+    if (codeOnly) {
       result = CODE_ONLY_PREAMBLE + result;
     }
 
