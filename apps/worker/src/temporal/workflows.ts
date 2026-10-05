@@ -424,9 +424,15 @@ async function runRescanPipeline(
         // 3. Check if exploitation is warranted
         const decision = await a.checkExploitationQueue(rescanActivityInput, config.vulnType);
 
-        // 4. Exploit to confirm remaining findings
+        // 4. Exploit to confirm remaining findings. Rescans otherwise always
+        // exploit (live rescans rely on it regardless of the exploit flag),
+        // but a code-only run has no target: the verdict comes from the
+        // vuln agent's static re-analysis alone.
         let exploitMetrics: AgentMetrics | null = null;
-        if (decision.shouldExploit) {
+        if (decision.shouldExploit && input.codeOnly) {
+          log.info(`${config.vulnType} rescan: code-only run — skipping exploitation, verdict from static re-analysis`);
+          state.completedAgents.push(config.exploitAgent);
+        } else if (decision.shouldExploit) {
           exploitMetrics = await config.runExploit();
           state.agentMetrics[config.exploitAgent] = exploitMetrics;
           state.completedAgents.push(config.exploitAgent);

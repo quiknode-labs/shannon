@@ -38,6 +38,7 @@ export interface PipelineInput {
   providerConfig?: ProviderConfig; // LLM provider configuration (Bedrock, Vertex, etc.)
   vulnClasses?: VulnClass[]; // omitted = all five
   exploit?: boolean; // false skips the exploitation phase
+  codeOnly?: boolean; // config code_only: no live target — never run exploit agents (incl. rescan)
 
   // Rescan mode — re-verify specific findings after developer fixes
   rescanMode?: boolean;

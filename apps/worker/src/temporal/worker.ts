@@ -303,6 +303,7 @@ interface OrchestrationConfig {
   pipelineConfig: PipelineConfig;
   vulnClasses?: VulnClass[];
   exploit?: boolean;
+  codeOnly?: boolean;
 }
 
 async function loadOrchestrationConfig(configPath: string | undefined): Promise<OrchestrationConfig> {
@@ -324,7 +325,7 @@ async function loadOrchestrationConfig(configPath: string | undefined): Promise<
       ...(config.exploit !== undefined && { exploit: config.exploit === 'true' }),
       // Code-only has nothing to exploit (config validation already rejects
       // an explicit exploit: "true" alongside it).
-      ...(config.code_only === 'true' && { exploit: false }),
+      ...(config.code_only === 'true' && { exploit: false, codeOnly: true }),
     };
   } catch {
     return { pipelineConfig: {} };
@@ -360,6 +361,7 @@ function buildPipelineInput(
     ...(Object.keys(orchestration.pipelineConfig).length > 0 && { pipelineConfig: orchestration.pipelineConfig }),
     ...(orchestration.vulnClasses && { vulnClasses: orchestration.vulnClasses }),
     ...(orchestration.exploit !== undefined && { exploit: orchestration.exploit }),
+    ...(orchestration.codeOnly && { codeOnly: true }),
     ...(rescanFindings &&
       rescanFindings.length > 0 && {
         rescanMode: true,
