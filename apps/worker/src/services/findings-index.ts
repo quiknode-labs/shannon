@@ -28,9 +28,13 @@ export interface FindingIndexEntry {
   vulnType: VulnClass;
   confidence: string;
   externally_exploitable: boolean;
-  severity: 'critical' | 'high' | 'medium' | 'low';
+  severity: 'critical' | 'high' | 'medium' | 'low' | 'informational';
+  // 'stated': the analysis agent's impact-based rating; 'derived': the
+  // confidence + exploitability fallback for findings that predate it.
+  severitySource: 'stated' | 'derived';
   title: string;
   codeLocation: string;
+  cwe?: string;
 }
 
 export interface FindingsIndex {
@@ -61,6 +65,8 @@ interface RawFinding {
   vulnerability_type: string;
   confidence: string;
   externally_exploitable: boolean;
+  severity?: string;
+  cwe?: string;
   // Injection / XSS
   path?: string;
   sink_call?: string;
@@ -147,6 +153,15 @@ function parseReportVerdicts(reportMd: string): Map<string, { verdict: RescanVer
   return results;
 }
 
+const SEVERITIES = ['critical', 'high', 'medium', 'low', 'informational'] as const;
+
+function statedOrDerivedSeverity(f: RawFinding): Pick<FindingIndexEntry, 'severity' | 'severitySource'> {
+  const stated = (f.severity ?? '').toLowerCase() as FindingIndexEntry['severity'];
+  return (SEVERITIES as readonly string[]).includes(stated)
+    ? { severity: stated, severitySource: 'stated' }
+    : { severity: deriveSeverity(f.confidence, f.externally_exploitable), severitySource: 'derived' };
+}
+
 function deriveSeverity(confidence: string, externallyExploitable: boolean): FindingIndexEntry['severity'] {
   const conf = confidence.toLowerCase();
   if (externallyExploitable) {
@@ -215,7 +230,8 @@ export async function generateFindingsIndex(
         vulnType,
         confidence: f.confidence,
         externally_exploitable: f.externally_exploitable,
-        severity: deriveSeverity(f.confidence, f.externally_exploitable),
+        ...statedOrDerivedSeverity(f),
+        ...(f.cwe ? { cwe: f.cwe } : {}),
         title: f.vulnerability_type,
         codeLocation: extractCodeLocation(f, vulnType),
       });

@@ -69,22 +69,41 @@ function formatLocation(endpoint: string | undefined, codeLocation: string | und
   return endpoint ?? codeLocation ?? '';
 }
 
+// Reporting fields every class carries (see makeBase in queue-schemas.ts);
+// optional here so queues written before they existed still render.
+interface CommonFields {
+  notes?: string | undefined;
+  severity?: string | undefined;
+  impact?: string | undefined;
+  remediation?: string | undefined;
+  cwe?: string | undefined;
+}
+
 function buildEntry(
   id: string,
   title: string,
   summaryRows: ReadonlyArray<string | null>,
-  notes: string | undefined,
+  common: CommonFields,
 ): string {
   const lines: string[] = [];
   lines.push(`### ${id}: ${title}`);
   lines.push('');
   lines.push('**Summary:**');
-  for (const row of summaryRows) {
+  // Same rows, same order, for every class.
+  const rows = [...summaryRows];
+  if (!rows.some(r => r?.startsWith('- **Impact:**'))) rows.push(summaryRow('Impact', common.impact));
+  rows.push(summaryRow('Severity', common.severity), summaryRow('CWE', common.cwe));
+  for (const row of rows) {
     if (row !== null) lines.push(row);
   }
   lines.push('');
-  if (notes && notes.trim() !== '') {
-    lines.push(`**Notes:** ${notes.trim()}`);
+  if (common.remediation && common.remediation.trim() !== '') {
+    lines.push('**Remediation:**');
+    lines.push(common.remediation.trim());
+    lines.push('');
+  }
+  if (common.notes && common.notes.trim() !== '') {
+    lines.push(`**Notes:** ${common.notes.trim()}`);
   }
   return lines.join('\n').trimEnd();
 }
@@ -98,9 +117,9 @@ function renderAuthEntry(e: AuthFinding): string {
     [
       summaryRow('Vulnerable location', formatLocation(e.source_endpoint, e.vulnerable_code_location)),
       summaryRow('Overview', e.missing_defense),
-      summaryRow('Impact', e.exploitation_hypothesis),
+      summaryRow('Impact', e.impact || e.exploitation_hypothesis),
     ],
-    e.notes,
+    e,
   );
 }
 
@@ -111,9 +130,9 @@ function renderSsrfEntry(e: SsrfFinding): string {
     [
       summaryRow('Vulnerable location', formatLocation(e.source_endpoint, e.vulnerable_code_location)),
       summaryRow('Overview', e.missing_defense),
-      summaryRow('Impact', e.exploitation_hypothesis),
+      summaryRow('Impact', e.impact || e.exploitation_hypothesis),
     ],
-    e.notes,
+    e,
   );
 }
 
@@ -124,9 +143,9 @@ function renderAuthzEntry(e: AuthzFinding): string {
     [
       summaryRow('Vulnerable location', formatLocation(e.endpoint, e.vulnerable_code_location)),
       summaryRow('Overview', e.guard_evidence),
-      summaryRow('Impact', e.side_effect),
+      summaryRow('Impact', e.impact || e.side_effect),
     ],
-    e.notes,
+    e,
   );
 }
 
@@ -136,7 +155,7 @@ function renderInjectionEntry(e: InjectionFinding): string {
     e.ID,
     e.vulnerability_type,
     [summaryRow('Vulnerable location', location), summaryRow('Overview', e.mismatch_reason)],
-    e.notes,
+    e,
   );
 }
 
@@ -146,7 +165,7 @@ function renderXssEntry(e: XssFinding): string {
     e.ID,
     e.vulnerability_type,
     [summaryRow('Vulnerable location', location), summaryRow('Overview', e.mismatch_reason)],
-    e.notes,
+    e,
   );
 }
 
@@ -160,7 +179,7 @@ function renderPromptInjectionEntry(e: PromptInjectionFinding): string {
       summaryRow('Impact', e.impact),
       summaryRow('Evidence', e.evidence),
     ],
-    e.notes,
+    e,
   );
 }
 
@@ -174,7 +193,7 @@ function renderPluginDesignEntry(e: PluginDesignFinding): string {
       summaryRow('Impact', e.impact),
       summaryRow('Evidence', e.evidence),
     ],
-    e.notes,
+    e,
   );
 }
 
@@ -188,7 +207,7 @@ function renderInfoDisclosureEntry(e: InfoDisclosureFinding): string {
       summaryRow('Impact', e.impact),
       summaryRow('Evidence', e.evidence),
     ],
-    e.notes,
+    e,
   );
 }
 
@@ -202,7 +221,7 @@ function renderOutputHandlingEntry(e: OutputHandlingFinding): string {
       summaryRow('Impact', e.impact),
       summaryRow('Evidence', e.evidence),
     ],
-    e.notes,
+    e,
   );
 }
 
@@ -216,7 +235,7 @@ function renderPromptLeakageEntry(e: PromptLeakageFinding): string {
       summaryRow('Impact', e.impact),
       summaryRow('Evidence', e.evidence),
     ],
-    e.notes,
+    e,
   );
 }
 
@@ -230,7 +249,7 @@ function renderVectorWeaknessesEntry(e: VectorWeaknessesFinding): string {
       summaryRow('Impact', e.impact),
       summaryRow('Evidence', e.evidence),
     ],
-    e.notes,
+    e,
   );
 }
 
@@ -244,7 +263,7 @@ function renderUnboundedConsumptionEntry(e: UnboundedConsumptionFinding): string
       summaryRow('Impact', e.impact),
       summaryRow('Evidence', e.evidence),
     ],
-    e.notes,
+    e,
   );
 }
 
@@ -258,7 +277,7 @@ function renderCryptoFailuresEntry(e: CryptoFailuresFinding): string {
       summaryRow('Impact', e.impact),
       summaryRow('Evidence', e.evidence),
     ],
-    e.notes,
+    e,
   );
 }
 
@@ -272,7 +291,7 @@ function renderSecurityMisconfigurationEntry(e: SecurityMisconfigurationFinding)
       summaryRow('Impact', e.impact),
       summaryRow('Evidence', e.evidence),
     ],
-    e.notes,
+    e,
   );
 }
 
@@ -286,7 +305,7 @@ function renderInsecureDeserializationEntry(e: InsecureDeserializationFinding): 
       summaryRow('Impact', e.impact),
       summaryRow('Evidence', e.evidence),
     ],
-    e.notes,
+    e,
   );
 }
 

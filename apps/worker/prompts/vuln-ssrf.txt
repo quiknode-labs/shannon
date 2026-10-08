@@ -108,6 +108,10 @@ An **exploitable vulnerability** is a data flow where user-controlled input infl
 	  "exploitation_hypothesis": "A clear statement describing the expected outcome of a successful exploit (e.g., 'An attacker can access internal services by providing internal URLs', 'An attacker can retrieve cloud metadata through URL manipulation').",
 	  "suggested_exploit_technique": "The specific attack pattern to attempt, derived from the methodology (e.g., 'internal_service_access', 'cloud_metadata_retrieval', 'port_scanning', 'webhook_abuse').",
 	  "confidence": "High | Medium | Low",
+	  "severity": "critical | high | medium | low | informational — the IMPACT if exploited in this application, not your confidence.",
+	  "impact": "what an attacker concretely gains here, in 1–3 sentences (which data, accounts, systems or actions).",
+	  "remediation": "the specific fix for this code: what to change and where (file and function), with a short code example when it helps. Not generic advice.",
+	  "cwe": "most specific CWE id, e.g. CWE-89.",
 	  "notes": "Relevant details about request format, authentication requirements, observed timeouts, or links to related findings."
 	}
 </exploitation_queue_format>

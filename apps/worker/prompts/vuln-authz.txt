@@ -113,6 +113,10 @@ An **exploitable vulnerability** is a logical flaw in the code that represents a
 		"reason": "1-2 lines explaining why this is vulnerable",
 		"minimal_witness": "brief description of how to trigger (e.g., 'change user_id param to another user', 'call admin endpoint as regular user')",
 		"confidence": "high | med | low",
+		"severity": "critical | high | medium | low | informational — the IMPACT if exploited in this application, not your confidence.",
+		"impact": "what an attacker concretely gains here, in 1–3 sentences (which data, accounts, systems or actions).",
+		"remediation": "the specific fix for this code: what to change and where (file and function), with a short code example when it helps. Not generic advice.",
+		"cwe": "most specific CWE id, e.g. CWE-89.",
 		"notes": "any assumptions, related findings, or special conditions"
 	}
 </exploitation_queue_format>

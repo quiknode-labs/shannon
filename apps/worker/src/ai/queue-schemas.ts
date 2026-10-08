@@ -24,12 +24,28 @@ function notesField(exploit: boolean) {
   return exploit ? f : f.describe(ANALYSIS_NOTES_DESCRIPTION);
 }
 
+// Reporting fields every finding carries, whatever its class, so downstream
+// reports never have to guess them: an impact-based severity (not the
+// confidence proxy), what an attacker actually gains, the fix for THIS code,
+// and the weakness. Required — the SDK rejects output that omits them.
+const SEVERITY_DESCRIPTION =
+  'Impact if exploited in this application: critical (full compromise, mass data access, RCE), high (significant data/account compromise), medium (limited or conditional impact), low (minor), informational. Rate impact, not your confidence.';
+const IMPACT_DESCRIPTION =
+  'What an attacker concretely gains in this application, in 1-3 sentences: which data, accounts, systems or actions. Specific to this finding, not the generic weakness.';
+const REMEDIATION_DESCRIPTION =
+  'The specific fix for this code: what to change and where (file and function), with a short code example when it helps. Not generic advice.';
+const CWE_DESCRIPTION = 'Most specific CWE identifier for this weakness, e.g. "CWE-89".';
+
 function makeBase(exploit: boolean) {
   return z.object({
     ID: z.string(),
     vulnerability_type: z.string(),
     externally_exploitable: z.boolean(),
     confidence: z.string(),
+    severity: z.enum(['critical', 'high', 'medium', 'low', 'informational']).describe(SEVERITY_DESCRIPTION),
+    impact: z.string().describe(IMPACT_DESCRIPTION),
+    remediation: z.string().describe(REMEDIATION_DESCRIPTION),
+    cwe: z.string().describe(CWE_DESCRIPTION),
     notes: notesField(exploit),
   });
 }
@@ -94,70 +110,60 @@ const PromptInjectionVulnerability = baseVulnerability.extend({
   vulnerable_component: z.string().optional(),
   attack_vector: z.string().optional(),
   evidence: z.string().optional(),
-  impact: z.string().optional(),
 });
 
 const PluginDesignVulnerability = baseVulnerability.extend({
   vulnerable_component: z.string().optional(),
   attack_vector: z.string().optional(),
   evidence: z.string().optional(),
-  impact: z.string().optional(),
 });
 
 const InfoDisclosureVulnerability = baseVulnerability.extend({
   vulnerable_component: z.string().optional(),
   attack_vector: z.string().optional(),
   evidence: z.string().optional(),
-  impact: z.string().optional(),
 });
 
 const OutputHandlingVulnerability = baseVulnerability.extend({
   vulnerable_component: z.string().optional(),
   attack_vector: z.string().optional(),
   evidence: z.string().optional(),
-  impact: z.string().optional(),
 });
 
 const PromptLeakageVulnerability = baseVulnerability.extend({
   vulnerable_component: z.string().optional(),
   attack_vector: z.string().optional(),
   evidence: z.string().optional(),
-  impact: z.string().optional(),
 });
 
 const VectorWeaknessesVulnerability = baseVulnerability.extend({
   vulnerable_component: z.string().optional(),
   attack_vector: z.string().optional(),
   evidence: z.string().optional(),
-  impact: z.string().optional(),
 });
 
 const UnboundedConsumptionVulnerability = baseVulnerability.extend({
   vulnerable_component: z.string().optional(),
   attack_vector: z.string().optional(),
   evidence: z.string().optional(),
-  impact: z.string().optional(),
 });
 
 const CryptoFailuresVulnerability = baseVulnerability.extend({
   vulnerable_component: z.string().optional(),
   attack_vector: z.string().optional(),
   evidence: z.string().optional(),
-  impact: z.string().optional(),
 });
 
 const SecurityMisconfigurationVulnerability = baseVulnerability.extend({
   vulnerable_component: z.string().optional(),
   attack_vector: z.string().optional(),
   evidence: z.string().optional(),
-  impact: z.string().optional(),
 });
 
 const InsecureDeserializationVulnerability = baseVulnerability.extend({
   vulnerable_component: z.string().optional(),
   attack_vector: z.string().optional(),
   evidence: z.string().optional(),
-  impact: z.string().optional(),
 });
 
 // === Inferred Entry Types (consumed by renderer) ===
@@ -277,7 +283,6 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
             vulnerable_component: z.string().optional(),
             attack_vector: z.string().optional(),
             evidence: z.string().optional(),
-            impact: z.string().optional(),
           }),
         ),
       }),
@@ -289,7 +294,6 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
             vulnerable_component: z.string().optional(),
             attack_vector: z.string().optional(),
             evidence: z.string().optional(),
-            impact: z.string().optional(),
           }),
         ),
       }),
@@ -301,7 +305,6 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
             vulnerable_component: z.string().optional(),
             attack_vector: z.string().optional(),
             evidence: z.string().optional(),
-            impact: z.string().optional(),
           }),
         ),
       }),
@@ -313,7 +316,6 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
             vulnerable_component: z.string().optional(),
             attack_vector: z.string().optional(),
             evidence: z.string().optional(),
-            impact: z.string().optional(),
           }),
         ),
       }),
@@ -325,7 +327,6 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
             vulnerable_component: z.string().optional(),
             attack_vector: z.string().optional(),
             evidence: z.string().optional(),
-            impact: z.string().optional(),
           }),
         ),
       }),
@@ -337,7 +338,6 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
             vulnerable_component: z.string().optional(),
             attack_vector: z.string().optional(),
             evidence: z.string().optional(),
-            impact: z.string().optional(),
           }),
         ),
       }),
@@ -349,7 +349,6 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
             vulnerable_component: z.string().optional(),
             attack_vector: z.string().optional(),
             evidence: z.string().optional(),
-            impact: z.string().optional(),
           }),
         ),
       }),
@@ -361,7 +360,6 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
             vulnerable_component: z.string().optional(),
             attack_vector: z.string().optional(),
             evidence: z.string().optional(),
-            impact: z.string().optional(),
           }),
         ),
       }),
@@ -373,7 +371,6 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
             vulnerable_component: z.string().optional(),
             attack_vector: z.string().optional(),
             evidence: z.string().optional(),
-            impact: z.string().optional(),
           }),
         ),
       }),
@@ -385,7 +382,6 @@ function buildOutputFormats(exploit: boolean): Partial<Record<AgentName, JsonSch
             vulnerable_component: z.string().optional(),
             attack_vector: z.string().optional(),
             evidence: z.string().optional(),
-            impact: z.string().optional(),
           }),
         ),
       }),

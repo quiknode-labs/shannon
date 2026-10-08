@@ -106,6 +106,10 @@ An **exploitable vulnerability** is a logical flaw in the code that represents a
 	  "exploitation_hypothesis": "A clear statement describing the expected outcome of a successful exploit. This should describe an active attack outcome, not just vulnerability confirmation (e.g., 'An attacker can successfully log into an account by guessing a simple password,' 'An attacker can hijack a user's session by replaying a stolen cookie').",
 	  "suggested_exploit_technique": "The specific attack pattern to attempt, derived from the methodology. The exploitation agent should actively execute this attack, not just confirm it's possible (e.g., 'brute_force_login', 'credential_stuffing', 'session_hijacking', 'session_fixation').",
 	  "confidence": "High | Medium | Low",
+	  "severity": "critical | high | medium | low | informational — the IMPACT if exploited in this application, not your confidence.",
+	  "impact": "what an attacker concretely gains here, in 1–3 sentences (which data, accounts, systems or actions).",
+	  "remediation": "the specific fix for this code: what to change and where (file and function), with a short code example when it helps. Not generic advice.",
+	  "cwe": "most specific CWE id, e.g. CWE-89.",
 	  "notes": "Relevant details about required session state, applicable roles, observed headers, or links to related findings."
 	}
 </exploitation_queue_format>
