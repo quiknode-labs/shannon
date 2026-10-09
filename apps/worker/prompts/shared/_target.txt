@@ -1,4 +1,5 @@
 URL: {{WEB_URL}}
+{{DESCRIPTION}}
 
 Filesystem:
 - {{REPO_PATH}}/ (read only)

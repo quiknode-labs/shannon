@@ -205,7 +205,7 @@
     "rules_of_engagement": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 1000,
+      "maxLength": 4000,
       "description": "Free-text instructions to the agent that render into every prompt."
     },
     "login": {
@@ -215,9 +215,9 @@
     },
     "description": {
       "type": "string",
-      "description": "Description of the target environment, its deployment context, and any information that helps guide the security assessment",
+      "description": "Description of the target environment, its deployment context, and any information that helps guide the security assessment. Renders into every agent's target block.",
       "minLength": 1,
-      "maxLength": 500,
+      "maxLength": 8000,
       "pattern": "\\S"
     }
   },
