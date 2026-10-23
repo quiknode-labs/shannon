@@ -91,7 +91,7 @@ function buildEntry(
   lines.push('**Summary:**');
   // Same rows, same order, for every class.
   const rows = [...summaryRows];
-  if (!rows.some(r => r?.startsWith('- **Impact:**'))) rows.push(summaryRow('Impact', common.impact));
+  if (!rows.some((r) => r?.startsWith('- **Impact:**'))) rows.push(summaryRow('Impact', common.impact));
   rows.push(summaryRow('Severity', common.severity), summaryRow('CWE', common.cwe));
   for (const row of rows) {
     if (row !== null) lines.push(row);

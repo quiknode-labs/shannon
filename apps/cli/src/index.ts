@@ -71,6 +71,7 @@ Usage:${
   }
   ${prefix} start --url <url> --repo <path> [options]   Start a pentest scan
   ${prefix} rescan -w <workspace> -r <path> -f <file>   Re-verify specific findings after fixes
+                                                        [-u <url> | --code-only] overrides the source workspace's target
   ${prefix} stop [-w <workspace>] [--clean]              Stop one scan, or all containers
   ${prefix} workspaces                                   List all workspaces
   ${prefix} logs <workspace>                             Tail workflow log
@@ -225,6 +226,8 @@ interface ParsedRescanArgs {
   repo: string;
   findingsFile: string;
   output?: string;
+  url?: string;
+  codeOnly: boolean;
   skipGitCheck: boolean;
   debug: boolean;
 }
@@ -234,6 +237,8 @@ function parseRescanArgs(argv: string[]): ParsedRescanArgs {
   let repo = '';
   let findingsFile = '';
   let output: string | undefined;
+  let url: string | undefined;
+  let codeOnly = false;
   let skipGitCheck = false;
   let debug = false;
 
@@ -242,6 +247,16 @@ function parseRescanArgs(argv: string[]): ParsedRescanArgs {
     const next = argv[i + 1];
 
     switch (arg) {
+      case '-u':
+      case '--url':
+        if (next && !next.startsWith('-')) {
+          url = next;
+          i++;
+        }
+        break;
+      case '--code-only':
+        codeOnly = true;
+        break;
       case '-w':
       case '--workspace':
         if (next && !next.startsWith('-')) {
@@ -290,13 +305,20 @@ function parseRescanArgs(argv: string[]): ParsedRescanArgs {
     process.exit(1);
   }
 
+  if (codeOnly && url) {
+    console.error('ERROR: --code-only and --url cannot be combined');
+    process.exit(1);
+  }
+
   return {
     sourceWorkspace,
     repo,
     findingsFile,
+    codeOnly,
     skipGitCheck,
     debug,
     ...(output && { output }),
+    ...(url && { url }),
   };
 }
 

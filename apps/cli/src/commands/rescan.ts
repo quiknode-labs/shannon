@@ -2,7 +2,8 @@
  * `shannon rescan` command — re-verify specific findings after developer fixes.
  *
  * Reads the source workspace URL from session.json so Coral does not need to
- * supply it separately. Creates a new workspace named
+ * supply it separately. `url` re-verifies against another deployment instead
+ * (e.g. a preview of a fix branch); `codeOnly` re-verifies the code alone. Creates a new workspace named
  * `{source}-rescan-{n}` and runs the targeted re-verification pipeline.
  */
 
@@ -14,12 +15,15 @@ import { buildEnvFlags, loadEnv, validateCredentials } from '../env.js';
 import { getCredentialsPath, getWorkspacesDir, initHome } from '../home.js';
 import { isLocal } from '../mode.js';
 import { resolveRepo } from '../paths.js';
+import { CODE_ONLY_TARGET_URL } from './start.js';
 
 export interface RescanArgs {
   sourceWorkspace: string;
   repo: string;
   findingsFile: string;
   output?: string;
+  url?: string;
+  codeOnly: boolean;
   skipGitCheck: boolean;
   debug: boolean;
   version: string;
@@ -63,6 +67,8 @@ export async function rescan(args: RescanArgs): Promise<void> {
     console.error(`ERROR: Could not read session.json for workspace ${args.sourceWorkspace}`);
     process.exit(1);
   }
+  if (args.codeOnly) webUrl = CODE_ONLY_TARGET_URL;
+  else if (args.url) webUrl = args.url;
 
   // 4. Read and validate findings file
   if (!fs.existsSync(args.findingsFile)) {
