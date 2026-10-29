@@ -410,12 +410,21 @@ const VULN_AGENT_QUEUE_FILENAMES: Partial<Record<AgentName, string>> = {
   'insecure_deserialization-vuln': 'insecure_deserialization_exploitation_queue.json',
 };
 
+/**
+ * Maps a `<class>-vuln-rescan` agent to its `<class>-vuln` counterpart.
+ * NOTE: rescan agents must rewrite the seeded queue with their structured output, otherwise
+ * the queue still holds the original finding and the queue-diff fallback reports STILL_VULNERABLE.
+ */
+function queueAgentName(agentName: AgentName): AgentName {
+  return agentName.replace(/-vuln-rescan$/, '-vuln') as AgentName;
+}
+
 /** Returns the structured output format for a vuln agent, or undefined for non-vuln agents. */
 export function getOutputFormat(agentName: AgentName, exploit = true): JsonSchemaOutputFormat | undefined {
-  return (exploit ? OUTPUT_FORMATS_EXPLOIT : OUTPUT_FORMATS_ANALYSIS)[agentName];
+  return (exploit ? OUTPUT_FORMATS_EXPLOIT : OUTPUT_FORMATS_ANALYSIS)[queueAgentName(agentName)];
 }
 
 /** Returns the queue filename for a vuln agent, or undefined for non-vuln agents. */
 export function getQueueFilename(agentName: AgentName): string | undefined {
-  return VULN_AGENT_QUEUE_FILENAMES[agentName];
+  return VULN_AGENT_QUEUE_FILENAMES[queueAgentName(agentName)];
 }

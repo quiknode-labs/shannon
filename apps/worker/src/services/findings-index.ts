@@ -123,8 +123,14 @@ function extractQueueEvidence(f: RawFinding): string | null {
   return parts.length ? parts.join(' ') : null;
 }
 
-const REPORT_VERDICT_HEADER = /^###\s+([A-Z_]+-VULN-\d+)\s*[—-]+\s*(FIXED|STILL_VULNERABLE|INCONCLUSIVE)\b/i;
-const REPORT_EVIDENCE_BLOCK = /\*\*Evidence:\*\*\s*\n([\s\S]*?)(?:\n---|\n##|$)/i;
+// NOTE: report-rescan.txt asks for `### ID — VERDICT: FIXED`; agents also write `### ID — FIXED`
+// or `### ID — [VERDICT: FIXED]`, so the label and brackets are optional.
+const REPORT_VERDICT_HEADER =
+  /^###\s+([A-Z_]+-VULN-\d+)\s*[—–-]+\s*\[?\s*(?:VERDICT\s*:\s*)?\**\s*(FIXED|STILL_VULNERABLE|INCONCLUSIVE)\b/i;
+const REPORT_VERDICT_LINE = /\*\*Re-analysis verdict:\*\*\s*\[?\s*(FIXED|STILL_VULNERABLE|INCONCLUSIVE)\b/i;
+const REPORT_FINDING_HEADER = /^###\s+([A-Z_]+-VULN-\d+)\b/i;
+// Evidence runs until the next section rule or a level 2–3 heading; `####` sub-headings and `# ` code comments stay inside it.
+const REPORT_EVIDENCE_BLOCK = /\*\*Evidence:\*\*\s*\n([\s\S]*?)(?:\n---|\n#{2,3}\s|$)/i;
 
 /**
  * Parses the report-rescan agent's own per-finding verdicts out of the final
@@ -140,10 +146,11 @@ function parseReportVerdicts(reportMd: string): Map<string, { verdict: RescanVer
   const results = new Map<string, { verdict: RescanVerdict; evidence: string }>();
   const sections = reportMd.split(/\n(?=###\s+[A-Z_]+-VULN-\d+\s)/);
   for (const section of sections) {
-    const header = REPORT_VERDICT_HEADER.exec(section);
-    if (!header?.[1] || !header[2]) continue;
-    const findingId = header[1];
-    const verdict = header[2].toUpperCase() as RescanVerdict;
+    const findingId = REPORT_FINDING_HEADER.exec(section)?.[1]?.toUpperCase();
+    if (!findingId) continue;
+    const stated = REPORT_VERDICT_HEADER.exec(section)?.[2] ?? REPORT_VERDICT_LINE.exec(section)?.[1];
+    if (!stated) continue;
+    const verdict = stated.toUpperCase() as RescanVerdict;
     const evidenceMatch = REPORT_EVIDENCE_BLOCK.exec(section);
     const evidence = evidenceMatch?.[1]
       ? evidenceMatch[1].trim().slice(0, 2000)
