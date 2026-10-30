@@ -38,6 +38,7 @@ import type { ConfigLoaderService } from './config-loader.js';
 import { PentestError } from './error-handling.js';
 import { commitGitSuccess, createGitCheckpoint, getGitCommitHash, rollbackGitWorkspace } from './git-manager.js';
 import { loadPrompt } from './prompt-manager.js';
+import { withOriginalFindings } from './rescan-originals.js';
 
 /**
  * Input for agent execution.
@@ -124,6 +125,8 @@ export class AgentExecutionService {
     // browser exploration step); same deliverable shape either way.
     const baseTemplate = AGENTS[agentName].promptTemplate;
     const promptTemplate = distributedConfig?.code_only && baseTemplate === 'recon' ? 'recon-code' : baseTemplate;
+    const fullRescanContext =
+      rescanContext !== undefined ? await withOriginalFindings(rescanContext, deliverablesPath) : undefined;
     let prompt: string;
     try {
       prompt = await loadPrompt(
@@ -132,7 +135,7 @@ export class AgentExecutionService {
           webUrl,
           repoPath,
           AUTH_STATE_FILE: authStateFile(auditSession.sessionMetadata),
-          ...(rescanContext !== undefined && { RESCAN_CONTEXT: rescanContext }),
+          ...(fullRescanContext !== undefined && { RESCAN_CONTEXT: fullRescanContext }),
         },
         distributedConfig,
         pipelineTestingMode,

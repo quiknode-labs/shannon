@@ -288,11 +288,14 @@ export async function generateRescanFindingsIndex(
   }
 
   for (const [vulnType, ids] of byType) {
-    const queuePath = path.join(deliverablesDir, QUEUE_FILES[vulnType]);
-    const queueExists = await fs.pathExists(queuePath);
+    // NOTE: Coverage-pack classes (e.g. kubernetes) have no rescan agent or
+    // queue; their verdict can only come from the report.
+    const queueFile = QUEUE_FILES[vulnType] as string | undefined;
+    const queuePath = queueFile ? path.join(deliverablesDir, queueFile) : null;
+    const queueExists = queuePath !== null && (await fs.pathExists(queuePath));
 
     let remaining = new Map<string, RawFinding>();
-    if (queueExists) {
+    if (queuePath !== null && queueExists) {
       try {
         const doc = (await fs.readJson(queuePath)) as QueueDoc;
         remaining = new Map((doc.vulnerabilities ?? []).map((v) => [v.ID, v]));

@@ -35,6 +35,7 @@ import { executeGitCommandWithRetry } from '../services/git-manager.js';
 import { runPreflightChecks } from '../services/preflight.js';
 import type { ExploitationDecision, VulnType } from '../services/queue-validation.js';
 import { assembleFinalReport, injectModelIntoReport } from '../services/reporting.js';
+import { type OriginalFinding, writeOriginalFindings } from '../services/rescan-originals.js';
 import { validateAuthentication } from '../services/validate-authentication.js';
 import { AGENTS } from '../session-manager.js';
 import type { AgentName } from '../types/agents.js';
@@ -1042,6 +1043,7 @@ export async function setupRescanWorkspace(
     insecure_deserialization: 'insecure_deserialization_exploitation_queue.json',
   };
 
+  const originals: OriginalFinding[] = [];
   for (const [vulnType, findingIds] of Object.entries(findingsByType)) {
     const queueFilename = queueFileMap[vulnType];
     if (!queueFilename) {
@@ -1064,10 +1066,17 @@ export async function setupRescanWorkspace(
     const filtered = (queue.vulnerabilities ?? []).filter((v) => findingIds.has(v.ID));
     const filteredQueue = { ...queue, vulnerabilities: filtered };
     await fs.writeFile(destQueue, JSON.stringify(filteredQueue, null, 2), 'utf8');
+    for (const entry of filtered) {
+      originals.push({ vulnType, entry });
+    }
     logger.info(
       `Filtered ${queueFilename}: ${filtered.length}/${(queue.vulnerabilities ?? []).length} findings retained`,
     );
   }
+
+  // 5. Snapshot the original findings so every rescan prompt carries their details
+  await writeOriginalFindings(destDeliverables, originals);
+  logger.info(`Recorded ${originals.length}/${rescanFindings.length} original findings for the rescan prompts`);
 
   logger.info('Rescan workspace setup complete');
 }
